@@ -1,0 +1,272 @@
+{{ block title }}
+    Trading
+{{ endblock }}
+{{ block content }}
+    <div class="row mb-3">
+        <p>
+            <b>Cash:</b> <span id="id_cash">{{ player.cash }}</span><br>
+            <b>Assets:</b> <span id="id_assets">{{ player.assets }}</span>
+        </p>
+    </div>
+    <div class="row mb-5">
+        <div class="col">
+            <h2>Bids</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="id_bid_orders">
+
+                </tbody>
+            </table>
+        </div>
+        <div class="col">
+            <h2>Asks</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="id_ask_orders">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row mb-5">
+        <div class="col">
+            <h2>Limit orders</h2>
+            <input type="number" inputmode="numeric" min="1" step="1" name="order_quantity" id="id_order_quantity" placeholder="Quantity" class="form-control">
+            <input type="number" inputmode="decimal" min="0.01" name="order_price" id="id_order_price" placeholder="Price" class="form-control">
+            <button type="button" id="id_place_ask" class="btn btn-outline-primary">Place Ask</button>
+            <button type="button" id="id_place_bid" class="btn btn-outline-secondary">Place Bid</button>
+        </div>
+        <div class="col">
+            <h2>Market orders</h2>
+            <input type="number" inputmode="numeric" min="1" step="1" name="market_order_quantity" id="id_market_order_quantity" placeholder="Quantity" class="form-control">
+            <button type="button" id="id_place_market_ask" class="btn btn-outline-primary">Place Market Ask</button>
+            <button type="button" id="id_place_market_bid" class="btn btn-outline-secondary">Place Market Bid</button>
+        </div>
+    </div>
+
+
+    {{ formfields }}
+    {{ next_button }}
+
+{{ endblock }}
+
+{{ block scripts }}
+<script>
+    let ask_table = document.getElementById("id_ask_orders");
+    let bid_table = document.getElementById("id_bid_orders");
+    
+    let order_quantity = document.getElementById("id_order_quantity");
+    let order_price = document.getElementById("id_order_price");
+    
+    let place_ask = document.getElementById("id_place_ask");
+    let place_bid = document.getElementById("id_place_bid");
+    
+    // market
+    let place_market_ask = document.getElementById("id_place_market_ask");
+    let place_market_bid = document.getElementById("id_place_market_bid");
+    let market_order_quantity = document.getElementById("id_market_order_quantity");
+    
+    let ask_orders = [];
+    let bid_orders = [];
+    
+    let cash_field = document.getElementById("id_cash");
+    let assets_field = document.getElementById("id_assets");
+    
+    cash = js_vars.cash;
+    assets = js_vars.assets;
+    
+    let my_player_id = js_vars.player_id;
+    
+    function setup() {
+        ask_orders = js_vars.asks;
+        bid_orders = js_vars.bids;
+        draw_table(ask_table, ask_orders);
+        draw_table(bid_table, bid_orders);
+    }
+    
+    function liveRecv(data) {
+        console.log(data);
+        if (data.type == "ask_placed") {
+            ask_placed(data.data);
+        }
+        if (data.type == "bid_placed") {
+            bid_placed(data.data);
+        }
+        if (data.type == "order_cancelled") {
+            cancel_order(data.data);
+        }
+        if (data.type == "market_order_filled") {
+            remove_orders(data.data.to_remove);
+            update_orders(data.data.to_update);
+            update_if_affected(data.data.affected_players);
+        }
+    }
+    
+    function update_if_affected(data) {
+        if (data.hasOwnProperty(my_player_id)) {
+            cash = data[my_player_id].cash;
+            assets = data[my_player_id].assets;
+            cash_field.innerHTML = cash;
+            assets_field.innerHTML = assets;
+        }
+    }
+    
+    function remove_orders(data) {
+        for (let j = 0; j < data.length; j++) {
+            for (let i = 0; i < bid_orders.length; i++) {
+                if (bid_orders[i].uuid == data[j]) {
+                    bid_orders.splice(i, 1);
+                    draw_table(bid_table, bid_orders);
+                    break;
+                }
+            }
+            for (let i = 0; i < ask_orders.length; i++) {
+                if (ask_orders[i].uuid == data[j]) {
+                    ask_orders.splice(i, 1);
+                    draw_table(ask_table, ask_orders);
+                    break;
+                }
+            }
+        }
+    }
+    
+    function update_orders(data) {
+        for (let j = 0; j < data.length; j++) {
+            for (let i = 0; i < bid_orders.length; i++) {
+                if (bid_orders[i].uuid == data[j].uuid) {
+                    bid_orders[i].quantity = data[j].quantity;
+                    draw_table(bid_table, bid_orders);
+                    break;
+                }
+            }
+            for (let i = 0; i < ask_orders.length; i++) {
+                if (ask_orders[i].uuid == data[j].uuid) {
+                    ask_orders[i].quantity = data[j].quantity;
+                    draw_table(ask_table, ask_orders);
+                    break;
+                }
+            }
+        }
+    }
+    
+    function cancel_order(data) {
+        if (data.is_bid) {
+            for (let i = 0; i < bid_orders.length; i++) {
+                if (bid_orders[i].uuid == data.uuid) {
+                    bid_orders.splice(i, 1);
+                    break;
+                }
+            }
+            draw_table(bid_table, bid_orders);
+        } else {
+            for (let i = 0; i < ask_orders.length; i++) {
+                if (ask_orders[i].uuid == data.uuid) {
+                    ask_orders.splice(i, 1);
+                    break;
+                }
+            }
+            draw_table(ask_table, ask_orders);
+        }
+    }
+    
+    function add_table_row(table, data) {
+        let row = document.createElement("tr");
+        let price = document.createElement("td");
+        let quantity = document.createElement("td");
+        price.innerHTML = data.price;
+        quantity.innerHTML = data.quantity;
+        
+        row.appendChild(price);
+        row.appendChild(quantity);
+        
+        let action = document.createElement("td");
+        if (data.player_id == my_player_id) {
+            let del_link = document.createElement("a");
+            del_link.addEventListener('click', function() {
+                liveSend({'type': 'cancel_order', 'data': {'uuid': data.uuid}});
+            });
+            del_link.href = "#";
+            del_link.innerHTML = "Cancel";
+            action.appendChild(del_link);
+        }
+        row.appendChild(action);
+        table.appendChild(row);
+    }
+    
+    function draw_table(table, data) {
+        table.innerHTML = "";
+        for (let i = 0; i < data.length; i++) {
+            add_table_row(table, data[i]);
+        }
+    }
+    
+    function add_ask_order(order_list, data) {
+        order_list.push(data)
+        order_list.sort(function(a, b) {
+            return a.price - b.price;
+        });
+    }
+    function add_bid_order(order_list, data) {
+        order_list.push(data)
+        order_list.sort(function(a, b) {
+            return b.price - a.price;
+        });
+    }
+    
+    function ask_placed(data) {
+        add_ask_order(ask_orders, data)
+        draw_table(ask_table, ask_orders);
+    }
+    
+    function bid_placed(data) {
+        add_bid_order(bid_orders, data)
+        draw_table(bid_table, bid_orders);
+    }
+    
+    function place_order(type) {
+        let price = order_price.value;
+        let quantity = order_quantity.value
+        let market_quantity = market_order_quantity.value;
+        
+        if ((type == "place_ask" || type == "place_bid") && (price != "" || quantity != "")) {
+            liveSend({'type': type, 'data': {'quantity': quantity, 'price': price}});
+        }
+        
+        if ((type == "place_market_ask" || type == "place_market_bid") && market_quantity != "") {
+            liveSend({'type': type, 'data': {'quantity': market_quantity}});
+        }
+        order_price.value = "";
+        order_quantity.value = "";
+    }
+    
+    place_ask.addEventListener('click', function() {
+        place_order('place_ask');
+    });
+    place_bid.addEventListener('click', function() {
+        place_order('place_bid');
+    });
+    
+    place_market_ask.addEventListener('click', function() {
+        place_order('place_market_ask');
+    });
+    
+    place_market_bid.addEventListener('click', function() {
+        place_order('place_market_bid');
+    });
+    
+    setup()
+    
+</script>
+{{ endblock }}
