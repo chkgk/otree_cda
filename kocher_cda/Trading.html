@@ -116,7 +116,9 @@
 
 
     {{ formfields }}
-    {{ next_button }}
+    {{ if view.is_debug }}
+        {{ next_button }}
+    {{ endif }}
 
 {{ endblock }}
 
@@ -124,10 +126,12 @@
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/series-label.js"></script>
 <script>
-    // Data retrieved from https://www.vikjavev.no/ver/snjomengd
     Highcharts.chart('container', {
         chart: {
             type: 'spline'
+        },
+        accessibility: {
+            enabled: false
         },
         title: {
             text: ''
@@ -148,7 +152,7 @@
         },
         yAxis: {
             title: {
-                text: 'Price in ECU'
+                text: 'Punkte'
             },
             min: 0,
         },

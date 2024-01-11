@@ -1,4 +1,5 @@
 from otree.api import *
+from otree.settings import DEBUG
 from sqlalchemy import Column, DateTime, String
 from sqlalchemy.sql import func
 from uuid import uuid4
@@ -20,6 +21,7 @@ class C(BaseConstants):
     }
 
     TRADING_SECONDS = 120
+    TRADING_SUMMARY_SECONDS = 30
 
     CASH_AND_ASSET_ENDOWMENTS = {
         "high": (3000, 20),
@@ -33,13 +35,14 @@ class Subsession(BaseSubsession):
 
 class Group(BaseGroup):  # market level
     dividend = models.IntegerField()
+    closing_price = models.IntegerField()
 
 
 class Player(BasePlayer):
     assets = models.IntegerField()
     cash = models.IntegerField()
-    period_payoff = models.IntegerField()
-
+    dividend_payment = models.IntegerField()
+    next_cash = models.IntegerField()
 
 def generate_uuid():
     return str(uuid4())
@@ -60,11 +63,15 @@ class Order(ExtraModel):
 # FUNCTIONS
 def creating_session(subsession):
     num_traders = len(subsession.get_players())
-    if num_traders % 16 != 0 and num_traders % 20 != 0:
-        raise Exception("Need a multiple of 16 or 20 traders")
+    if DEBUG:
+        traders_per_market = int(num_traders / 2)
+        num_markets = 2
+    else:
+        if num_traders % 16 != 0 and num_traders % 20 != 0:
+            raise Exception("Need a multiple of 16 or 20 traders")
     
-    traders_per_market = 10 if num_traders % 20 == 0 else 8
-    num_markets = int(num_traders / traders_per_market)
+        traders_per_market = 10 if num_traders % 20 == 0 else 8
+        num_markets = int(num_traders / traders_per_market)
 
     # set group matrix
     if subsession.round_number == 1:
@@ -75,7 +82,7 @@ def creating_session(subsession):
         subsession.set_group_matrix(group_matrix) 
     else:
         subsession.group_like_round(1)
-    
+
     # prepare dividend sequence dict
     if subsession.round_number == 1:
         subsession.session.vars["dividend_sequences"] = dict()
@@ -100,10 +107,7 @@ def creating_session(subsession):
                     player.cash, player.assets = C.CASH_AND_ASSET_ENDOWMENTS["high"]
                 else:
                     player.cash, player.assets = C.CASH_AND_ASSET_ENDOWMENTS["low"]
-            # subsequent rounds start with prev. round results
-            else:
-                player.cash = player.in_round(subsession.round_number - 1).cash
-                player.assets = player.in_round(subsession.round_number - 1).assets
+
 
 def handle_order(player, is_bid, data):
     order = Order.create(player=player, group=player.group, round=player.round_number, uuid=str(uuid4()), is_bid=is_bid, price=data["price"], quantity=data["quantity"])
@@ -145,7 +149,7 @@ def handle_market_order(player, is_bid, data):
     for trade in trades:
         # needs to differentiate between bid and ask
         q = int(trade["quantity"])
-        p = float(trade["price"])
+        p = int(trade["price"])
         player.cash -= p * q
         player.assets += q
         other_player = player.group.get_player_by_id(trade["affected"])
@@ -169,7 +173,21 @@ def cancel_order(player, data):
 
 
 # PAGES
+class TradingWaitPage(WaitPage):
+    # wait_for_all_groups = True
+
+    def after_all_players_arrive(group: Group):
+        if group.round_number == 1:
+            return
+
+        for player in group.get_players():
+            prev_player = player.in_round(group.round_number - 1)
+            player.cash = prev_player.next_cash
+            player.assets = prev_player.assets
+
 class Trading(Page):
+    # timeout_seconds = C.TRADING_SECONDS
+    
     @staticmethod
     def live_method(player, data):
         if data["type"] == "place_ask":
@@ -196,11 +214,61 @@ class Trading(Page):
         }
 
     def before_next_page(player, timeout_happened):
-        player.period_payoff = player.cash + player.assets * player.group.dividend
+
+        # ToDo: actually implement last trade price
+        last_trade_price = random.randint(20, 100)
+        print("last trade price not implemented")
+
+        if player.group.field_maybe_none('closing_price') is None:
+            player.group.closing_price = last_trade_price
+
+        player.dividend_payment = player.assets * player.group.dividend
+        player.next_cash = player.cash + player.dividend_payment
+
+class TradingSummary(Page):
+    # timeout_seconds = C.TRADING_SUMMARY_SECONDS
+    
+    def vars_for_template(player):
+        history = []
+        for p in player.in_all_rounds():
+            g = p.group
+            if p.round_number <= player.round_number:
+                history.append({
+                    "round": p.round_number, 
+                    "cash": p.cash, 
+                    "assets": p.assets,
+                    "closing_price": g.closing_price,
+                    "dividend": g.dividend,
+                    "dividend_sum": p.dividend_payment,
+                    "total": p.cash + p.dividend_payment
+                })
+        return {
+            "history": history,
+        }
+
+    def js_vars(player):
+        closing_prices = list()
+        for g in player.group.in_all_rounds():
+            closing_prices.append([g.round_number, g.closing_price])
+
+        # ToDo: Remove demo data
+        if closing_prices:
+            closing_prices = [
+                [1, 10],
+                [2, 20],
+                [3, 22],
+                [4, 20],
+                [5, 30],
+                [6, 40],
+                [7, 30],
+                [8, 25],
+                [9, 10],
+                [10, 5]
+            ]
+
+        return {
+            "closing_prices": closing_prices
+        }
 
 
-class Results(Page):
-    pass
-
-
-page_sequence = [Trading, Results]
+page_sequence = [TradingWaitPage, Trading, TradingSummary]
