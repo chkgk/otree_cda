@@ -196,7 +196,7 @@ class Trading(Page):
         }
 
     def before_next_page(player, timeout_happened):
-        player.period_payoff = player.cash + player.assets * (C.HIGH_DIVIDEND if player.group.asset_high else C.LOW_DIVIDEND)
+        player.period_payoff = player.cash + player.assets * player.group.dividend
 
 
 class Results(Page):
