@@ -1,0 +1,74 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree_tags %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 'egt/css/custom.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+{% block scripts %}
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle="popover"]').popover({ trigger: "hover", placement: "bottom", sanitize: false, html: true });
+        });
+    </script>
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    Your Decision
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <div class="wrapper">
+         <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            Page {{ page }} of {{ total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width:{{ progress }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+        <div class="progress-vspace"></div>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Items -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <div class="panel panel-default info">
+            <img src="{% static img %}" class="img-rounded"/>
+
+            <br/>
+            <div class="choices">
+                {% for choice, synonyms, examples in set %}
+                    <button name="choice"
+                            class="choice"
+                            value="{{ choice }}">
+                        {{ choice }}
+                    </button>
+                    <div class="info-icon"
+                         data-toggle="popover"
+                         title="{{ synonyms }}"
+                         data-bs-content="{{ examples }}"
+                         data-html="true">
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree_tags %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 'egt/css/custom.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    Instructions
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <div class="wrapper instructions">
+        <p>
+            In the following, you will see 18 pictures showing just the eyes part of people's faces with four emotion
+            labels below it. You are asked to select which one of the four emotion words best describes the emotion
+            that the eyes are showing. Please provide your best guess for each item.
+        </p>
+        <p>
+            For each of the emotion words, synonyms and an example sentence are available via the small info sign in
+            the bottom right corner.
+        </p>
+        <p>
+            To familiarize yourself with the task, one practice item will be shown on the next screen.
+        </p>
+    </div>
+
+    {% next_button %}
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree_tags %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 'egt/css/custom.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+{% block scripts %}
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle="popover"]').popover({ trigger: "hover", placement: "bottom", sanitize: false, html: true });
+        });
+    </script>
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    Practice Round
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <div class="wrapper">
+        <img src="{% static 'egt/practice/0.png' %}" class="img-rounded"/>
+
+        <br/>
+        <div class="choices">
+
+            <!-- --------------------------------------------------------------------------------------------------- -->
+            <!-- JEALOUS -->
+            <!-- --------------------------------------------------------------------------------------------------- -->
+            <button type="button" class="choice" data-bs-toggle="modal" data-bs-target="#IncorrectAnswer">
+                jealous
+            </button>
+            <div class="info-icon"
+                 data-toggle="popover"
+                 title="envious"
+                 data-bs-content="
+                    Tony was <i>jealous</i> of all the tall,
+                    better-looking boys in his class.
+                 "
+                 data-html="true">
+            </div>
+
+            <!-- --------------------------------------------------------------------------------------------------- -->
+            <!-- PANICKED -->
+            <!-- --------------------------------------------------------------------------------------------------- -->
+            <button type="button" class="choice" data-bs-toggle="modal" data-bs-target="#CorrectAnswer">
+                panicked
+            </button>
+            <div class="info-icon"
+                 data-toggle="popover"
+                 title="distraught, feeling of terror or anxiety"
+                 data-bs-content="
+                    On waking to find the house on fire,
+                    the whole family were <i>panicked</i>.
+                 "
+                 data-html="true">
+            </div>
+
+            <!-- --------------------------------------------------------------------------------------------------- -->
+            <!-- ARROGANT -->
+            <!-- --------------------------------------------------------------------------------------------------- -->
+            <button type="button" class="choice" data-bs-toggle="modal" data-bs-target="#IncorrectAnswer">
+                arrogant
+            </button>
+            <div class="info-icon"
+                 data-toggle="popover"
+                 title="conceited, self-important, having a big opinion of oneself"
+                 data-bs-content="
+                    The <i>arrogant</i> man thought he knew more about
+                    politics than everybody else in the room.
+                 "
+                 data-html="true">
+            </div>
+
+            <!-- --------------------------------------------------------------------------------------------------- -->
+            <!-- HATEFUL -->
+            <!-- --------------------------------------------------------------------------------------------------- -->
+            <button type="button" class="choice" data-bs-toggle="modal" data-bs-target="#IncorrectAnswer">
+                hateful
+            </button>
+            <div class="info-icon"
+                 data-toggle="popover"
+                 title="showing intense dislike"
+                 data-bs-content="
+                    The two sisters were <i>hateful</i>
+                    to each other and always fighting.
+                 "
+                 data-html="true">
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- ----------------------------------------------------------------------------------------------------------- -->
+    <!-- MODAL: Correct Answer -->
+    <!-- ----------------------------------------------------------------------------------------------------------- -->
+    <div class="modal fade" role="dialog" id="CorrectAnswer">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>Your answer was correct.</h4>
+                </div>
+                <div class="modal-body">
+                    You got the practice right.<br/>
+                    You will receive no more feedback from here on.
+                </div>
+                <div class="modal-footer">
+                    {% next_button %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ----------------------------------------------------------------------------------------------------------- -->
+    <!-- MODAL: Correct Answer -->
+    <!-- ----------------------------------------------------------------------------------------------------------- -->
+    <div class="modal fade" role="dialog" id="IncorrectAnswer">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>Your answer was not correct.</h4>
+                </div>
+                <div class="modal-body">
+                    The correct answer for this practice item was 'panicked'. <br/>
+                    You will receive no more feedback from here on.
+                </div>
+                <div class="modal-footer">
+                    {% next_button %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

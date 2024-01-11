@@ -6,6 +6,12 @@ SESSION_CONFIGS = [
         app_sequence=['kocher_cda'],
         num_demo_participants=4,
     ),
+    dict(
+        name="egt",
+        display_name="Eye Gaze Test",
+        app_sequence=["egt"],
+        num_demo_participants=4,
+    )
 ]
 
 # if you set a property in SESSION_CONFIG_DEFAULTS, it will be inherited by all configs
