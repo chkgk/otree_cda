@@ -1,0 +1,137 @@
+{% extends "stroop/StroopPage.html" %}
+
+{% block styles %}
+<style>
+    html {
+        height: 100%;
+    }
+    body {
+        background-color: #000;
+        color: #fff;
+        height: 100%;
+        overflow: hidden;
+    }
+    
+    #stimulus {
+        font-size: 5vw;
+        font-family: sans-serif;
+        text-align: center;
+        font-weight: 600;
+    }
+    .flex-container {
+        display: flex;
+        height: 80%;
+    }
+    .button-container {
+        display: flex;
+        height: 10%;
+    }
+    .centered {
+        margin: auto;
+    }
+    
+    .stroop-button {
+        margin-left: 10px;
+        margin-right: 10px;
+        width: 100px;
+        color: black;
+        font-weight: bold;
+        border-color: #ccc;
+    }
+    
+    .otree-timer {
+        background-color: #000;
+        color: #fff;
+        text-align: right;
+        border: none;
+        height: 10%;
+    }
+    
+    .otree-timer.alert {
+        margin-bottom: 0px;
+    }
+        
+    .debug-info {
+        background-color: #000;
+        color: #fff;
+        border-color: #fff;
+    }
+    
+    .table {
+        color: #fff;
+    }
+</style>
+{% endblock %}
+
+
+{{ block stroop }}
+    
+    <div class="flex-container">
+        <div class="centered" id="stimulus"></div>
+    </div>
+{{ endblock}}
+
+{{ block content }}
+    
+    <div class="button-container">
+        <div class="centered" id="button-box">
+            <a class="btn btn-secondary stroop-button" id="btn-purple">violett</a>
+            <a class="btn btn-secondary stroop-button" id="btn-brown">braun</a>
+            <a class="btn btn-secondary stroop-button" id="btn-yellow">gelb</a>
+            <a class="btn btn-secondary stroop-button" id="btn-green">grün</a>
+            <a class="btn btn-secondary stroop-button" id="btn-red">rot</a>
+            <a class="btn btn-secondary stroop-button" id="btn-blue">blau</a>
+        </div>
+    </div>
+
+    {{ formfields }}
+    {{ if view.is_debug }}
+        {{ next_button }}
+    {{ endif }}
+
+{{ endblock }}
+
+{{ block scripts }}
+<script>
+    const COLOR_MAP = {
+        'purple': '#b700ff',
+        'brown': '#6c1a1a',
+        'yellow': '#ffff00',
+        'green': '#00c900',
+        'red': '#ff0000',
+        'blue': '#0064e3'
+    };
+    const RESPONSE_MAP = {
+        'btn-purple': 'purple',
+        'btn-brown': 'brown',
+        'btn-yellow': 'yellow',
+        'btn-green': 'green',
+        'btn-red': 'red',
+        'btn-blue': 'blue'
+    };
+    let current_trial = null;
+    let stimulus = document.getElementById('stimulus');
+    let buttons = document.getElementsByClassName('stroop-button');
+    let time_left_box = document.querySelector('.otree-timer>p');
+    time_left_box.firstChild.textContent = "Time left:\n"
+    
+    let display_time = null;
+    
+    Array.from(buttons).forEach(function(button) {
+        button.addEventListener('click', function() {
+            let response_time = new Date().getTime() - display_time;
+            liveSend({'type': 'stroop-response', 'response': RESPONSE_MAP[button.id], 'uuid': current_trial['uuid'], "response_time": response_time});
+        });
+    });
+    function liveRecv(data) {
+        if (data["type"] == "stroop-trial") {
+            current_trial = data["trial"];
+            stimulus.innerHTML = data["trial"]["decoy_text"];
+            stimulus.style.color = COLOR_MAP[data["trial"]["color"]];
+            display_time = new Date().getTime();
+        }
+    }
+    
+    liveSend({'type': 'stroop-start'});
+</script>
+{{ endblock }}

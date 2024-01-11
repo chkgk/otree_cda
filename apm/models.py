@@ -2,7 +2,6 @@ from otree.api import (
     models, widgets, BaseConstants, BaseSubsession, BaseGroup, BasePlayer,
     Currency as c, currency_range
 )
-import os
 
 
 author = 'Felix Holzmeister. Adapted by Christian König-Kersting in 2024.'
@@ -20,7 +19,6 @@ class Constants(BaseConstants):
     players_per_group = None
 
     gto_seconds = 600
-    overallrounds = True
 
     # list of correct answers
     # ----------------------------------------------------------------------------------------------------------------

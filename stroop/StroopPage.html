@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block head_title %}{% endblock %}</title>
+    {% block internal_styles %}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{% static 'bootstrap5/css/bootstrap.min.css' %}">
+        <link rel="stylesheet" href="{% static 'otree/css/theme.css' %}">
+        {% comment %}
+        this actually belongs in internal_scripts, but we are in the process
+        of deprecating it, so some people's apps might still rely on jQuery being
+        available within the content block.
+        {% endcomment %}
+        <script src="{% static 'otree/js/jquery-3.2.1.min.js' %}"></script>
+    {% endblock %}
+    {# these blocks are for public API #}
+    {% block global_styles %}{% endblock %}
+    {% block app_styles %}{% endblock %}
+    {% block styles %}{% endblock %}
+</head>
+<body>
+    
+        {% if view.remaining_timeout_seconds() != None %}
+          {% with form_element_id="form" %}
+            {% include 'otree/includes/TimeLimit.html'  %}
+          {% endwith %}
+        {% endif %}
+        {% if form.errors %}
+            <div class="otree-form-errors alert alert-danger">
+              {% if form.non_field_error %}
+                {{ form.non_field_error }}
+              {% else %}
+                {{ "Please fix the errors."|gettext }}
+              {% endif %}
+            </div>
+        {% endif %}{% if is_defined('js_vars') and js_vars %}<script>var js_vars = {{ js_vars }};</script>{% endif %}
+        {% block stroop %} {% endblock %}
+        <form class="otree-form" method="post" role="form" id="form" autocomplete="off">
+            <div class="_otree-content">{% block content %}{% endblock %}</div>
+        </form>
+        <br/>
+        {# need the check for projects with old MTurkLandingPage #}
+        {% if is_defined('view.is_debug') and view.is_debug %}
+            <br>
+            {% include 'otree/includes/debug_info.html' %}
+        {% endif %}
+
+{% block internal_scripts %}
+  <script src="{% static 'otree/js/internet-explorer.js' %}"></script>
+  <script src="{% static 'otree/js/reconnecting-websocket-iife.min.js' %}"></script>
+    {% block bootstrap_scripts %}
+    <script src="{% static 'bootstrap5/js/bootstrap.bundle.min.js' %}"></script>
+    {% endblock %}
+    <script src="{% static 'otree/js/common.js' %}"></script>
+
+    <script id="websocket-redirect" src="{% static 'otree/js/page-websocket-redirect.js' %}"
+            data-socket-url="{{ view.socket_url() }}"
+            data-is-debug="{{ view.is_debug || '' }}"
+    ></script>
+    {% if view.remaining_timeout_seconds() != None %}
+        {% include 'otree/includes/TimeLimit.js.html' %}
+    {% endif %}
+{% endblock %}
+{% block live %}
+    {% if has_live_method %}
+    <form id="liveform"></form>
+    <script src="{% static 'otree/js/live.js' %}" id="otree-live" data-socket-url="{{ view.live_url() }}"></script>
+  {% endif %}
+{% endblock %}
+{# these blocks are for public API #}
+{% block global_scripts %}{% endblock %}
+{% block app_scripts %}{% endblock %}
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -17,7 +17,13 @@ SESSION_CONFIGS = [
         display_name="Advanced Progressive Matrices",
         app_sequence=["apm"],
         num_demo_participants=4,
-    )
+    ),
+    dict(
+        name='stroop',
+        display_name="Stroop Test",
+        app_sequence=['stroop'],
+        num_demo_participants=4,
+    ),
 ]
 
 # if you set a property in SESSION_CONFIG_DEFAULTS, it will be inherited by all configs
