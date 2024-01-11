@@ -11,6 +11,12 @@ SESSION_CONFIGS = [
         display_name="Eye Gaze Test",
         app_sequence=["egt"],
         num_demo_participants=4,
+    ),
+    dict(
+        name="apm",
+        display_name="Advanced Progressive Matrices",
+        app_sequence=["apm"],
+        num_demo_participants=4,
     )
 ]
 

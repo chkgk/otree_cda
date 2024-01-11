@@ -1,0 +1,33 @@
+/* ****************************************************************************************************************** */
+/* *** Decision *** */
+/* ****************************************************************************************************************** */
+
+.matrix {
+    width: 410px;
+    padding: 5px;
+    margin: 10px auto 20px;
+}
+
+.choices {
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.choice {
+    width: 140px;
+    display: inline-block;
+    border: solid 2px #a3a3a3;
+    border-radius: 5px;
+    text-align: center;
+    padding: 3px;
+    margin: 5px;
+}
+
+.choice:hover {
+    border: solid 2px orange;
+}
+
+.img_choice {
+    width: 130px;
+}

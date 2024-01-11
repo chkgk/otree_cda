@@ -1,0 +1,40 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree_tags %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 'apm/css/custom.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    Instructions
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <div class="wrapper instructions">
+        <p>
+            In the following, you will be shown 18 test items. Each item comprises a pattern of diagrammatic puzzles
+            with one piece missing. You are asked to choose the correct missing piece from a series of possible
+            answers. The patterns in each item are presented in the form of a 3x3 matrix with the missing piece in
+            the bottom right corner. An example of such a matrix is shown below. You have 10 minutes in total for
+            this task.
+        </p>
+        <div style="text-align: center">
+            <img src="{% static 'apm/img/matrices/2.png' %}" class="matrix">
+        </div>
+    </div>
+
+    {% next_button %}
+{% endblock %}
