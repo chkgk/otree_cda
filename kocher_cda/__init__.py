@@ -36,10 +36,9 @@ class Group(BaseGroup):  # market level
 
 
 class Player(BasePlayer):
-    assets = models.IntegerField(default=100)
-    cash = models.FloatField(default=1000)
-
-    period_payoff = models.FloatField(default=0)
+    assets = models.IntegerField()
+    cash = models.IntegerField()
+    period_payoff = models.IntegerField()
 
 
 def generate_uuid():
@@ -49,11 +48,11 @@ def generate_uuid():
 class Order(ExtraModel):
     player = models.Link(Player)
     group = models.Link(Group)
+    uuid = models.StringField()
     round = models.IntegerField()
     is_bid = models.BooleanField()
-    price = models.FloatField()
+    price = models.IntegerField()
     quantity = models.IntegerField()
-    uuid = models.StringField()
     deleted = models.BooleanField(default=False)
     created = Column(DateTime(timezone=True), server_default=func.now())
 
