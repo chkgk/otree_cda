@@ -11,11 +11,20 @@ Your app description
 
 class C(BaseConstants):
     NAME_IN_URL = 'kocher_cda'
-    PLAYERS_PER_GROUP = 2
-    NUM_ROUNDS = 1
+    PLAYERS_PER_GROUP = None
+    NUM_ROUNDS = 10
 
-    HIGH_DIVIDEND = 10
-    LOW_DIVIDEND = 0
+    DIVIDEND = {
+        "high": 10,
+        "low": 0
+    }
+
+    TRADING_SECONDS = 120
+
+    CASH_AND_ASSET_ENDOWMENTS = {
+        "high": (3000, 20),
+        "low": (1000, 60)
+    }
 
 
 class Subsession(BaseSubsession):
@@ -23,10 +32,7 @@ class Subsession(BaseSubsession):
 
 
 class Group(BaseGroup):  # market level
-    asset_high = models.BooleanField()
-
-    def determine_dividend(self):
-        self.asset_high = random.choice([True, False])
+    dividend = models.IntegerField()
 
 
 class Player(BasePlayer):
@@ -54,9 +60,51 @@ class Order(ExtraModel):
 
 # FUNCTIONS
 def creating_session(subsession):
-    for group in subsession.get_groups():
-        group.determine_dividend()
+    num_traders = len(subsession.get_players())
+    if num_traders % 16 != 0 and num_traders % 20 != 0:
+        raise Exception("Need a multiple of 16 or 20 traders")
+    
+    traders_per_market = 10 if num_traders % 20 == 0 else 8
+    num_markets = int(num_traders / traders_per_market)
 
+    # set group matrix
+    if subsession.round_number == 1:
+        group_matrix = []
+        for market in range(num_markets):
+            group_matrix.append([market * traders_per_market + i + 1 for i in range(traders_per_market)])
+
+        subsession.set_group_matrix(group_matrix) 
+    else:
+        subsession.group_like_round(1)
+    
+    # prepare dividend sequence dict
+    if subsession.round_number == 1:
+        subsession.session.vars["dividend_sequences"] = dict()
+
+    for group in subsession.get_groups():
+        # set sequence of high and low dividends
+        if subsession.round_number == 1:
+            dividend_sequence = [C.DIVIDEND["high"] for i in range(int(C.NUM_ROUNDS/2))] + [C.DIVIDEND["low"] for i in range(int(C.NUM_ROUNDS/2))]
+            random.shuffle(dividend_sequence)
+            subsession.session.vars["dividend_sequences"][group.id_in_subsession] = dividend_sequence
+        else:
+            dividend_sequence = subsession.session.vars.get("dividend_sequences")[group.id_in_subsession]
+
+        # set dividend
+        group.dividend = dividend_sequence[subsession.round_number - 1]
+
+        # set cash and assets
+        for player in group.get_players():
+            # first round endowments
+            if subsession.round_number == 1:
+                if player.id_in_group <= traders_per_market / 2:
+                    player.cash, player.assets = C.CASH_AND_ASSET_ENDOWMENTS["high"]
+                else:
+                    player.cash, player.assets = C.CASH_AND_ASSET_ENDOWMENTS["low"]
+            # subsequent rounds start with prev. round results
+            else:
+                player.cash = player.in_round(subsession.round_number - 1).cash
+                player.assets = player.in_round(subsession.round_number - 1).assets
 
 def handle_order(player, is_bid, data):
     order = Order.create(player=player, group=player.group, round=player.round_number, uuid=str(uuid4()), is_bid=is_bid, price=data["price"], quantity=data["quantity"])
