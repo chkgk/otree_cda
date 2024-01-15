@@ -64,6 +64,8 @@
         </div>
         <div class="col-4">
             <h2>Bids</h2>
+        <div class="col">
+            <h2>Bids (buyers)</h2>
             <table class="table">
                 <thead>
                     <tr>
@@ -79,6 +81,8 @@
         </div>
         <div class="col-4">
             <h2>Asks</h2>
+        <div class="col">
+            <h2>Asks (sellers)</h2>
             <table class="table">
                 <thead>
                     <tr>
@@ -340,17 +344,21 @@
         }
     }
     
+    function ab_price(a, b) {
+        return a.price - b.price;
+    }
+    
+    function ba_price(a, b) {
+        return b.price - a.price;
+    }
+    
     function add_ask_order(order_list, data) {
         order_list.push(data)
-        order_list.sort(function(a, b) {
-            return a.price - b.price;
-        });
+        order_list.sort(ab_price);
     }
     function add_bid_order(order_list, data) {
         order_list.push(data)
-        order_list.sort(function(a, b) {
-            return b.price - a.price;
-        });
+        order_list.sort(ba_price);
     }
     
     function ask_placed(data) {
@@ -368,7 +376,43 @@
         let quantity = order_quantity.value
         let market_quantity = market_order_quantity.value;
         
-        if ((type == "place_ask" || type == "place_bid") && (price != "" || quantity != "")) {
+        if (type == "place_bid") {
+            if (price == "" || quantity == "") {
+                console.log("nothing entered")
+                return;
+            }
+            if (price <= 0 || quantity <= 0) {
+                console.log("zero order")
+                return;
+            }
+            if (quantity > assets) {
+                console.log("not enough assets")
+                return;
+            }
+            if (ask_orders.length > 0 && price >= ask_orders[0].price) {
+                console.log("price too high")
+                return;
+            }
+            liveSend({'type': type, 'data': {'quantity': quantity, 'price': price}});
+        }
+        
+        if (type == "place_ask") {
+            if (price == "" || quantity == "") {
+                console.log("nothing entered")
+                return;
+            }
+            if (price <= 0 || quantity <= 0) {
+                console.log("zero order")
+                return;
+            }
+            if (price * quantity > cash) {
+                console.log("not enough cash")
+                return;
+            }
+            if (bid_orders.length > 0 && price <= bid_orders[bid_orders.length - 1].price) {
+                console.log("price too low")
+                return;
+            }
             liveSend({'type': type, 'data': {'quantity': quantity, 'price': price}});
         }
         

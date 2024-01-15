@@ -4,6 +4,7 @@ from sqlalchemy import Column, DateTime, String
 from sqlalchemy.sql import func
 from uuid import uuid4
 import random
+import json
 
 doc = """
 Your app description
@@ -72,6 +73,13 @@ class Order(ExtraModel):
             created=str(self.created)
         )
 
+class Trade(ExtraModel):
+    order = models.Link(Order)
+    quantity = models.IntegerField()
+    price = models.FloatField()
+    type = models.StringField()
+    created = Column(DateTime(timezone=True), server_default=func.now())
+
 # FUNCTIONS
 def vars_for_admin_report(subsession):
     import json
@@ -137,25 +145,24 @@ def handle_order(player, is_bid, data):
 def handle_market_order(player, is_bid, data):
     orders = Order.filter(group=player.group, round=player.round_number, is_bid=(not is_bid), deleted=False)
 
-    # should sort here!
+    orders = sorted(orders, key=lambda x: x.price, reverse=(not is_bid))
 
     quantity = data["quantity"]
     to_fill = int(quantity)
     trades = list()
     to_remove = list()
     to_update = list()
-    
-    # needs to differentiate between bid and ask
+
     # this needs to track volume to check if budget is exceeded
     for order in orders:
         if to_fill >= order.quantity:
             to_fill -= order.quantity
-            trades.append({"uuid": order.uuid, "initiated_by": player.id_in_group, "affected": order.player.id_in_group, "price": order.price, "quantity": order.quantity})
+            trades.append({"object": order, "uuid": order.uuid, "initiated_by": player.id_in_group, "affected": order.player.id_in_group, "price": order.price, "quantity": order.quantity})
             to_remove.append(order)
             order.deleted = True
         else:  # to fill < order.quantity
             order.quantity -= to_fill
-            trades.append({"uuid": order.uuid, "initiated_by": player.id_in_group, "affected": order.player.id_in_group, "price": order.price, "quantity": to_fill})
+            trades.append({"object": order, "uuid": order.uuid, "initiated_by": player.id_in_group, "affected": order.player.id_in_group, "price": order.price, "quantity": to_fill})
             to_update.append(order)
             to_fill = 0
 
@@ -165,7 +172,6 @@ def handle_market_order(player, is_bid, data):
     affected_players = {trade["affected"]: {} for trade in trades}
     affected_players.update({player.id_in_group: {}})
     for trade in trades:
-        # needs to differentiate between bid and ask
         q = int(trade["quantity"])
         p = int(trade["price"])
         player.cash -= p * q
@@ -174,8 +180,11 @@ def handle_market_order(player, is_bid, data):
         other_player.cash += p * q
         other_player.assets -= q
 
+        Trade.create(order=trade['object'], type="market", quantity=q, price=p)
+
         affected_players[other_player.id_in_group] = {"cash": other_player.cash, "assets": other_player.assets}
     affected_players[player.id_in_group] = {"cash": player.cash, "assets": player.assets}
+
 
     return {0: {"type": "market_order_filled", "data": {"to_remove": [order.uuid for order in to_remove], "to_update": [{"uuid": order.uuid, "quantity": order.quantity} for order in to_update], "affected_players": affected_players}}}
 
@@ -223,10 +232,15 @@ class Trading(Page):
 
     @staticmethod
     def js_vars(player):
+
+        asks = [{"price": order.price, "quantity": order.quantity, "uuid": order.uuid, "player_id": order.player.id_in_group} for order in Order.filter(group=player.group, is_bid=False, deleted=False)]
+
+        bids = [{"price": order.price, "quantity": order.quantity, "uuid": order.uuid, "player_id": order.player.id_in_group} for order in Order.filter(group=player.group, is_bid=True, deleted=False)]
+
         return {
             "player_id": player.id_in_group,
-            "asks": [{"price": order.price, "quantity": order.quantity, "uuid": order.uuid, "player_id": order.player.id_in_group} for order in Order.filter(group=player.group, is_bid=False, deleted=False)],
-            "bids": [{"price": order.price, "quantity": order.quantity, "uuid": order.uuid, "player_id": order.player.id_in_group} for order in Order.filter(group=player.group, is_bid=True, deleted=False)],
+            "asks": sorted(asks, key=lambda x: x["price"]),
+            "bids": sorted(bids, key=lambda x: x["price"], reverse=True),
             "cash": player.cash,
             "assets": player.assets,
         }
