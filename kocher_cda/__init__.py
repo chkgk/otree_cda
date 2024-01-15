@@ -59,8 +59,26 @@ class Order(ExtraModel):
     deleted = models.BooleanField(default=False)
     created = Column(DateTime(timezone=True), server_default=func.now())
 
+    def as_dict(self):
+        return dict(
+            player_id=self.player.id_in_group,
+            group_id=self.group.id_in_subsession,
+            uuid=self.uuid,
+            round=self.round,
+            is_bid=self.is_bid,
+            price=self.price,
+            quantity=self.quantity,
+            deleted=self.deleted,
+            created=str(self.created)
+        )
 
 # FUNCTIONS
+def vars_for_admin_report(subsession):
+    import json
+    return {
+        "orders": json.dumps([order.as_dict() for order in Order.filter()])
+    }
+
 def creating_session(subsession):
     num_traders = len(subsession.get_players())
     if DEBUG:
