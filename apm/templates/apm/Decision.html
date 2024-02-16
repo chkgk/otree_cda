@@ -17,6 +17,12 @@
     Your Decision
 {% endblock %}
 
+{{ block scripts }}
+<script>
+    let otree_timer = document.querySelector(".otree-timer > p");
+    otree_timer.firstChild.replaceWith("Time left to complete this part:");
+</script>
+{{ endblock }}
 
 {# ****************************************************************************************************************** #}
 {# *** CONTENT *** #}
