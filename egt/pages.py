@@ -3,6 +3,7 @@ from . import models
 from ._builtin import Page, WaitPage
 from .models import Constants
 
+import time
 
 
 # ******************************************************************************************************************** #
@@ -14,6 +15,9 @@ class Instructions(Page):
     # ----------------------------------------------------------------------------------------------------------------
     def is_displayed(self):
         return self.subsession.round_number == 1
+    
+    def before_next_page(player):
+        player.participant.vars["egt_overall_timeout"] = time.time() + Constants.gto_seconds
 
 
 # ******************************************************************************************************************** #
@@ -36,6 +40,12 @@ class Decision(Page):
     # ----------------------------------------------------------------------------------------------------------------
     form_model = models.Player
     form_fields = ['choice']
+
+    def get_timeout_seconds(self):
+        return self.player.participant.vars["egt_overall_timeout"] - time.time()
+
+    def is_displayed(self):
+        return self.get_timeout_seconds() > 3
 
     # variables for template
     # ----------------------------------------------------------------------------------------------------------------

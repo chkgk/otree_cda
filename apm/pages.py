@@ -17,7 +17,7 @@ class Instructions(Page):
         return self.subsession.round_number == 1
 
     def before_next_page(player):
-        player.participant.vars["overall_timeout"] = time.time() + Constants.gto_seconds
+        player.participant.vars["apm_overall_timeout"] = time.time() + Constants.gto_seconds
 
 
 # ******************************************************************************************************************** #
@@ -28,7 +28,7 @@ class Decision(Page):
     form_fields = ['choice']
 
     def get_timeout_seconds(self):
-        return self.player.participant.vars["overall_timeout"] - time.time()
+        return self.player.participant.vars["apm_overall_timeout"] - time.time()
 
     def is_displayed(self):
         return self.get_timeout_seconds() > 3

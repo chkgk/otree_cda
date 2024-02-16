@@ -14,6 +14,9 @@
     <script>
         $(document).ready(function(){
             $('[data-toggle="popover"]').popover({ trigger: "hover", placement: "bottom", sanitize: false, html: true });
+            
+            let otree_timer = document.querySelector(".otree-timer > p");
+            otree_timer.firstChild.replaceWith("Time left to complete this part:");
         });
     </script>
 {% endblock %}

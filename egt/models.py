@@ -946,17 +946,21 @@ class Constants(BaseConstants):
     # ----------------------------------------------------------------------------------------------------------------
     images = [str(j)+'.png' for j in range(1,37)]
 
+    # commenting this out. Corgnet et al did all 36 in 10 minutes.
+
     # only keep odd-numbered items
     # ----------------------------------------------------------------------------------------------------------------
-    images = images[::2]
-    choices = choices[::2]
-    synonyms = synonyms[::2]
-    examples = examples[::2]
-    correct = correct[::2]
+    # images = images[::2]
+    # choices = choices[::2]
+    # synonyms = synonyms[::2]
+    # examples = examples[::2]
+    # correct = correct[::2]
 
     # set number of rounds
     # ----------------------------------------------------------------------------------------------------------------
     num_rounds = len(images)
+
+    gto_seconds = 600
 
 
 # ******************************************************************************************************************** #
