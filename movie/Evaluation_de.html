@@ -1,0 +1,40 @@
+{{ block title }}
+    Beurteilung
+{{ endblock }}
+
+{{ block content }}
+    <p>
+        Please indicate the emotional state that BEST describes what you’ve experienced while watching the video clip—only one option allowed. Then, indicate the intensity of the selected emotional experience.
+
+    </p>
+
+    <div class="mb-3 _formfield">
+        <div class="controls">
+            <div id="id_movie_feeling" required="">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="id_movie_feeling-0" name="movie_feeling" required="" value="1"> <label for="id_movie_feeling-0">Angst / Furcht / Nervosität</label>
+                </div>
+                <div class="mb-3">
+                    <label class="col-form-label" for="id_movie_intensity_anxiety">Intensität (1 = sehr gering; 9 = sehr hoch)</label>
+                    <div class="controls">
+                                <input type="number" class="form-control" inputmode="numeric" id="id_movie_intensity_anxiety" max="9" min="1" name="movie_intensity_anxiety" value="">
+                            </div>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="id_movie_feeling-1" name="movie_feeling" required="" value="2"> <label for="id_movie_feeling-1">Aufregung / Freude / Begeisterung</label>
+                </div>
+                    <div class="mb-3">
+                    <label class="col-form-label" for="id_movie_intensity_excitement">Intensität (1 = sehr gering; 9 = sehr hoch)</label>
+                    <div class="controls">
+                                <input type="number" class="form-control" inputmode="numeric" id="id_movie_intensity_excitement" max="9" min="1" name="movie_intensity_excutement" value="">
+                            </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    {{ formfield player.movie_filler_task }}
+    {{ next_button }}
+{{ endblock }}
+
+

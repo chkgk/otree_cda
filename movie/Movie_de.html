@@ -1,0 +1,73 @@
+{{ block title }}
+    Videoclip
+{{ endblock }}
+
+{{ block styles }}
+    <style>
+        body {
+           -webkit-user-select: none;
+           -webkit-touch-callout: none;
+           -moz-user-select: none;
+           -ms-user-select: none;
+           user-select: none;
+        }
+        iframe {
+            pointer-events: none;
+        }
+        p {
+            text-align: center;
+        }
+        #movie_box {
+            text-align: center;
+            width: 100%;
+        }
+        video {
+            margin: auto;
+        }
+    </style>
+{{ endblock }}
+
+{{ block content }}
+    <div id="movie_box">
+        <video width="{{ width }}" height="{{ height }}" poster="{{ static poster }}" oncontextmenu="return false;" autoplay disablepictureinpicture disableremoteplayback preload="auto">
+            <source src="{{ static url }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    <p><em>Es kann einen Moment dauern, bis der Filmclip erscheint. Bitte haben Sie Geduld.<br>Sollte der Clip erscheinen aber nicht starten, klicken Sie bitte <a href="#" id="play_button">hier</a>.</em></p>
+    {{ formfields }}
+    
+    {{ if view.is_debug }}
+        <p>Button only shown in debug mode</p>
+        {{ next_button }}
+    {{ endif }}
+{{ endblock }}
+
+{{ block scripts }}
+<script>
+    let vid = document.getElementsByTagName('video')[0];
+    let form = document.getElementsByTagName('form')[0];
+    let play_button = document.getElementById('play_button');
+        
+    play_button.addEventListener('click', function() {
+       vid.play(); 
+    });
+    
+    vid.addEventListener('play', function() {
+        console.log('started playing');
+    });
+    vid.addEventListener('canplaythrough', function() {
+        console.log('can play through');
+        vid.poster = "";
+    });
+    vid.addEventListener('ended', function() {
+        console.log('ended playing');
+        form.submit();
+    });
+    
+    let timer = document.querySelector('.otree-timer');
+    timer.style.display = 'none';
+
+    
+</script>
+{{ endblock }}
