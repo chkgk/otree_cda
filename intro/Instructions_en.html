@@ -1,0 +1,45 @@
+{{ block title }}
+    Instructions
+{{ endblock }}
+
+{{ block content }}
+    <p>
+        An experimenter will now read out the instructions provided on paper. Please follow along.
+        If you have any questions, please raise your hand and an experimenter will come to your desk and answer your question in private.
+    </p>
+
+    <p>
+        Once you are ready to continue with the experiment, please click the button below.
+    </p>
+    <div class="mb-3" id="ready_button_box">
+        <button type="button" class="btn btn-primary" id="ready">I am ready to continue with the experiment</button>
+    </div>
+    
+    {{ if view.is_debug }}
+        <p><em>The next button is only shown in debug mode</em></p>
+        {{ next_button }}
+    {{ endif }}
+{{ endblock }}
+
+{{ block scripts }}
+    <script>
+        let ready_to_advance = false;
+        document.getElementById('ready').addEventListener('click', function () {
+            document.getElementById('ready_button_box').innerHTML = '<p><em>Please wait for the experiment to continue.</em></p>';
+            ready_to_advance = true;
+            liveSend('advance?');
+            if (js_vars.player_id === 1) {
+            }
+            window.setInterval(function () {
+                liveSend('advance?')
+            }, 5000);
+        });
+        
+        function liveRecv(data) {
+            if (data['advance'] === js_vars.current_page_name && ready_to_advance === true) {
+                document.getElementById('form').submit();
+            }
+        }
+
+    </script>
+{{ endblock }}

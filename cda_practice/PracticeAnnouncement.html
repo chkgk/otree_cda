@@ -1,0 +1,15 @@
+{{ block title }}
+    Practice Period 
+
+{{ endblock }}
+{{ block content }}
+
+    <p>
+        We will now start with the practice period for the stock market. You will play a single trading period.
+    </p>
+ 
+    {{ if view.is_debug }}  
+        <p><em>The next button is only shown in debug mode.</em></p>
+        {{ next_button }}
+    {{ endif }}
+{{ endblock }}

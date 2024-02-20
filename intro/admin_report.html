@@ -1,0 +1,51 @@
+<div id="buttons"></div>
+
+<script>
+    let pages = JSON.parse('{{ advance_pages }}');
+    let button_box = document.getElementById('buttons');
+    
+    for (const [key, value] of Object.entries(pages)) {
+        let button = document.createElement('button');
+        button.type = 'button';
+        button.id = `advance_${key}`;
+        button.classList.add('btn', 'btn-primary', 'mb-3', 'advance_button');
+        let page_name = key.slice(8);
+        button.textContent = `advance ${page_name}`;
+        if (value === true) {
+            button.disabled = true;
+        }
+        button.addEventListener('click', function () {
+            advance_page(key);
+        });
+        button_box.appendChild(button);
+        button_box.appendChild(document.createElement('br'));
+    }
+    
+    function advance_page(page_name) {
+        const protocol = window.location.protocol;
+        const hostname = window.location.hostname;
+        const port = window.location.port;
+        const url = protocol + '//' + hostname + ':' + port;
+        const endpoint = "session_vars";
+
+        const rest_key = "{{ rest_key }}";
+        const session_code = "{{ session_code }}";
+        let data = {};
+        data[`${page_name}`] = true;
+        
+        const combined = url + '/api/' + endpoint + '/' + session_code;
+        console.log(combined);
+        fetch(combined, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'otree-rest-key': rest_key
+            },
+            body: JSON.stringify({"vars": data})
+        }).then(function (response) {
+            console.log(response);
+        }).then(function() {
+            window.location.reload();
+        });
+    }
+</script>

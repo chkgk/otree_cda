@@ -1,0 +1,40 @@
+{{ block title }}
+    Consent
+{{ endblock }}
+
+{{ block content }}
+    <p>
+        <b>Research goal:</b><br>
+       We are interested in how participants trade on experimental asset markets. In this study, you will trade in an experimental asset market, complete a series of decision tasks, and answer a few demographics questions
+    </p>
+    <p>
+        <b>Duration:</b><br>
+        The study takes approximately {{ duration }} minutes to complete.
+    </p>
+    <p>
+        <b>Compensation:</b><br>
+        You will receive a fixed payment of {{ fix_pay }}. In addition, you will receive a variable payment that depends on your choices, the other participants’ choices, as well as random draws.
+    </p>
+    <p>
+        <b>Data protection and confidentiality:</b><br>
+        All the data we collect is collected in anonymized form or will be anonymized prior to data analysis. We do not link your name or contact details to your answers and choices in this study. The data we collect will be exclusively used for research purposes. Only anonymized data will be published.
+    </p>
+    <p>
+        <b>Requirements:</b><br>
+         Participation in this study is limited to individuals aged 18 and older. To participate, you must be fluent in German. There are no other formal requirements for participation.
+    </p>
+    <p>
+        <b>Participation:</b><br>
+        Participation in this study is voluntary and you can only participate once. If you do not wish to participate, please contact the experimenter in the room now.
+    </p>
+    <p>
+        <b>Contact:</b><br>
+        If you have any questions or concerns before, during, or after participating in the study, please contact the experimenter by email: christian.koenig@uibk.ac.at. This study was approved by the Institutional Review Boards at the University of Innsbruck  (Certificate of good standing, 118/2023) and WU Vienna University of Economics and Business (WU-RP-2023-064).
+    </p>
+    
+    <div class="mb-3">
+        {{ formfield 'consent_given' }}
+    </div>
+    {{ next_button }}
+{{ endblock }}
+

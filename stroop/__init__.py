@@ -1,11 +1,36 @@
 from otree.api import *
 import random
 import uuid
+from otree.settings import DEBUG, LANGUAGE_CODE
+from common.pages import TranslatedPage, LANGUAGE_MAP
 
 doc = """
 Stroop Task as used in Kocher et al.
 """
 
+
+def _(s):
+    LANGUAGE_MAP["de"] = {
+        "A farmer had 15 sheep and all but 8 died. How many are left?": "",
+        "Emily's father has three daughters. The first two are called April and May. What is the name of the third daughter?": "",
+        "How many cubic feet of dirt are there in a hole that is 3’ deep x 3’ wide x 3’ long?": "",
+        "How strenuous did you find the previous task on a scale of 1 to 6?": "Wie anstrengend fanden Sie die vorhergehende Aufgabe auf einer Skala von 1 bis 6?",
+        "Is your native language German?": "Ist Ihre Muttersprache Deutsch?",
+        "Are you suffering from ametropia?" : "Leiden Sie unter einer Fehlsichtigkeit?",
+        "Are you suffering from color blindness?": "Leiden Sie unter einer Farbenfehlsichtigkeit?",
+        "Yes": "Ja",
+        "No": "Nein",
+        "Yes, myopia": "Ja, unter Kurzsichtigkeit",
+        "Yes, farsightedness": "Ja, unter Weitsichtigkeit",
+        "Yes, other": "Ja, anderes",
+        "Yes, red green weakness": "Ja, unter Rot-Grün-Schwäche",
+        "Yes, red green blindness": "Ja, unter Rot-Grün-Blindheit",
+        "1 - not strenuous at all": "1 - gar nicht anstrengend",
+        "6 - very strenuous": "6 - sehr anstrengend",
+    }
+    if LANGUAGE_CODE in LANGUAGE_MAP.keys():
+        return LANGUAGE_MAP[LANGUAGE_CODE][s]
+    return s
 
 class C(BaseConstants):
     NAME_IN_URL = 'stroop'
@@ -24,6 +49,20 @@ class C(BaseConstants):
         'blue': 'blau',
     }
 
+    HL_LOTTERY = {
+        "name": "HL1",
+        "lottery_a": {
+            "probabilities": [0.5, 0.5],
+            "prizes": [
+                [0.2 for _ in range(0, 10)],
+                [4.2 for _ in range(0, 10)]
+            ]
+        },
+        "lottery_b": {
+            "probabilities": [1],
+            "prizes": [[0.6, 1.0, 1.4, 1.8, 2.2, 2.6, 3.0, 3.4, 3.8, 4.2]]
+        },
+    }
 
 
 class Subsession(BaseSubsession):
@@ -39,11 +78,28 @@ class Player(BasePlayer):
     num_trials = models.IntegerField()
     num_correct = models.IntegerField()
 
-    mother_tongue_german = models.BooleanField(label="Ist Ihre Muttersprache Deutsch?", choices=[(True, "Ja"), (False, "Nein")], widget=widgets.RadioSelect)
-    vision_impairment = models.IntegerField(label="Leiden Sie unter einer Fehlsichtigkeit?", choices=[(0, "Nein"), (1, "Ja, unter Kurzsichtigkeit"), (2, "Ja, unter Weitsichtigkeit"), (3, "Ja, anderes")], widget=widgets.RadioSelect)
-    vision_impairment_color = models.IntegerField(label="Leiden Sie unter einer Farbenfehlsichtigkeit?", choices=[(0, "Nein"), (1, "Ja, Rot-Grün-Schwäche"), (2, "Ja, Rot-Grün-Blindheit"), (3, "Ja, anderes")], widget=widgets.RadioSelect)
+    mother_tongue_german = models.BooleanField(label=_("Is your native language German?"), choices=[(True, _("Yes")), (False, _("No"))], widget=widgets.RadioSelect)
+    vision_impairment = models.IntegerField(label=_("Are you suffering from ametropia?"), choices=[(0, _("No")), (1, _("Yes, myopia")), (2, _("Yes, farsightedness")), (3, _("Yes, other"))], widget=widgets.RadioSelect)
+    vision_impairment_color = models.IntegerField(label=_("Are you suffering from color blindness?"), choices=[(0, _("No")), (1, _("Yes, red green weakness")), (2, _("Yes, red green blindness")), (3, _("Yes, other"))], widget=widgets.RadioSelect)
 
-    stroop_difficulty = models.IntegerField(label="Wie anstrengend fanden Sie die vorhergehende Aufgabe auf einer Skala von 1 bis 6?", choices=[(1, "1 - gar nicht anstrengend"), (2, "2"), (3, "3"), (4, "4"), (5, "5"), (6, "6 - sehr anstrengend")], widget=widgets.RadioSelect)
+    stroop_difficulty = models.IntegerField(label=_("How strenuous did you find the previous task on a scale of 1 to 6?"), choices=[(1, _("1 - not strenuous at all")), (2, "2"), (3, "3"), (4, "4"), (5, "5"), (6, _("6 - very strenuous"))], widget=widgets.RadioSelect)
+
+    crt3_sheep = models.IntegerField(label=_("A farmer had 15 sheep and all but 8 died. How many are left?"), min=0, max=15)
+    crt3_daughters = models.StringField(label=_("Emily's father has three daughters. The first two are called April and May. What is the name of the third daughter?"))
+    crt3_dirt = models.IntegerField(label=_("How many cubic feet of dirt are there in a hole that is 3’ deep x 3’ wide x 3’ long?"), min=0, max=100)
+
+    crt3_score = models.FloatField()
+
+    hl_a_1 = models.BooleanField(widget=widgets.RadioSelect)
+    hl_a_2 = models.BooleanField(widget=widgets.RadioSelect)
+    hl_a_3 = models.BooleanField(widget=widgets.RadioSelect)
+    hl_a_4 = models.BooleanField(widget=widgets.RadioSelect)
+    hl_a_5 = models.BooleanField(widget=widgets.RadioSelect)
+    hl_a_6 = models.BooleanField(widget=widgets.RadioSelect)
+    hl_a_7 = models.BooleanField(widget=widgets.RadioSelect)
+    hl_a_8 = models.BooleanField(widget=widgets.RadioSelect)
+    hl_a_9 = models.BooleanField(widget=widgets.RadioSelect)
+    hl_a_10 = models.BooleanField(widget=widgets.RadioSelect)
 
 
 class Trial(ExtraModel):
@@ -86,6 +142,7 @@ def create_trial(player: Player, last_trial_color):
                              is_congruent=trial['is_congruent'])
     return trial_obj.as_dict()
 
+
 def custom_export(players):
     # header row
     yield ['session', 'participant_code', 'id_in_group', "decoy_text", "color", "is_congruent", "is_correct", "response_ms"]
@@ -96,10 +153,33 @@ def custom_export(players):
         session = p.session
         yield [session.code, participant.code, p.id_in_group, t.decoy_text, t.color, t.is_congruent, t.is_correct, t.response_ms]
 
+
+def calculate_payoff(player: Player, lottery):
+    max_row = len(lottery["lottery_a"]["prizes"][0])
+    random_row = random.randint(1, max_row)
+    chose_a = getattr(player, f"hl_a_{random_row}")
+
+    if not chose_a:
+        lottery_outcome = lottery["lottery_b"]["prizes"][0][random_row - 1]
+
+    else:
+        pay_left = random.random() < lottery["lottery_a"]["probabilities"][0]
+        if pay_left:
+            lottery_outcome = lottery["lottery_a"]["prizes"][0][random_row - 1]
+        else:
+            lottery_outcome = lottery["lottery_a"]["prizes"][1][random_row - 1]
+
+    player.payoff = lottery_outcome
+    player.participant.vars["pay_for_hl_a"] = chose_a
+    player.participant.vars["pay_for_hl_row"] = random_row
+    player.participant.vars["pay_hl_outcome"] = lottery_outcome
+
+
 # PAGES
-class PreTaskQuestions(Page):
+class PreTaskQuestions(TranslatedPage):
     form_model = 'player'
     form_fields = ['mother_tongue_german', 'vision_impairment', 'vision_impairment_color']
+
 
 class Task(Page):
     timeout_seconds = C.TASK_DURATION
@@ -143,14 +223,40 @@ class Task(Page):
         player.num_correct = len([t for t in trials if t.is_correct])
 
 
-class PostTaskQuestions(Page):
+class PostTaskQuestions(TranslatedPage):
     form_model = 'player'
     form_fields = ['stroop_difficulty']
 
+
+class CRT3(TranslatedPage):
+    form_model = 'player'
+    form_fields = ['crt3_sheep', 'crt3_daughters', 'crt3_dirt']
+
+    def before_next_page(player, timeout_happened):
+        player.crt3_score = sum([
+            player.crt3_sheep == 8,
+            player.crt3_daughters.strip().lower() == 'emily',
+            player.crt3_dirt == 0
+        ])/3
+
+
+class HL(TranslatedPage):
+    form_model = 'player'
+    form_fields = [f"hl_a_{i}" for i in range(1, 11)]
+
+    def js_vars(player: Player):
+        return {
+            'lotteries': C.HL_LOTTERY,
+        }
+
+    def before_next_page(player: Player, timeout_happened):
+        calculate_payoff(player, C.HL_LOTTERY)
 
 
 page_sequence = [
     PreTaskQuestions,
     Task,
-    PostTaskQuestions
+    PostTaskQuestions,
+    CRT3,
+    HL
 ]

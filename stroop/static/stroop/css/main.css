@@ -1,0 +1,20 @@
+.part_display {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    padding: 5px;
+    color: #868686;
+}
+
+.highlight_color_1 {
+    color: #547FC9;   
+}
+.highlight_color_2 {
+    color: #FF0A7C;   
+}
+.highlight_color_3 {
+    color: #00CC96;   
+}
+.otree-body {
+    max-width: 1024px;
+}

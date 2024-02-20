@@ -2,6 +2,18 @@ from os import environ
 
 SESSION_CONFIGS = [
     dict(
+        name="intro",
+        display_name="Introduction",
+        app_sequence=["intro"],
+        num_demo_participants=4,
+    ),
+    dict(
+        name="cda_practice",
+        display_name="Asset Market Practice Period",
+        app_sequence=["cda_practice"],
+        num_demo_participants=4,
+    ),
+    dict(
         name='kocher_cda',
         app_sequence=['kocher_cda'],
         num_demo_participants=4,
@@ -46,7 +58,7 @@ SESSION_FIELDS = []
 
 # ISO-639 code
 # for example: de, fr, ja, ko, zh-hans
-LANGUAGE_CODE = 'de'
+LANGUAGE_CODE = 'en'
 
 # e.g. EUR, GBP, CNY, JPY
 REAL_WORLD_CURRENCY_CODE = 'USD'
