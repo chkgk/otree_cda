@@ -7,11 +7,19 @@
         On the following screen, you will be asked to watch a movie clip. After that, a few specific questions about the video will be asked.
     </p>
     <p>
+        Please put your headphones on, then press play. Make sure you can hear a sound playing. Contact the experimenter if you do not hear anything.
+    </p>
+
+    <div class="mb-3">
+        <p>Test your audio:</p>
+        <audio id="sound_check" controls loop controlslist="novolume nodownload nofullscreen noremoteplayback noplaybackrate nomute" volume="1.0"> 
+            <source src="{{ static 'audio/crowd_talking.ogg' }}" type="audio/ogg"> 
+        </audio> 
+    </div>
+    <p>
         Please pay careful attention to the movie clip.
     </p>
-    
 
     {{ next_button }}
 {{ endblock }}
-
 

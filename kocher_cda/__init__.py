@@ -200,6 +200,11 @@ def cancel_order(player, data):
 
 
 # PAGES
+class Part2Announcement(Page):
+    def is_displayed(player):
+        return player.round_number == 1
+
+
 class TradingWaitPage(WaitPage):
     # wait_for_all_groups = True
 
@@ -303,4 +308,4 @@ class TradingSummary(Page):
         }
 
 
-page_sequence = [TradingWaitPage, Trading, TradingSummary]
+page_sequence = [Part2Announcement, TradingWaitPage, Trading, TradingSummary]

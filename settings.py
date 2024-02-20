@@ -14,32 +14,45 @@ SESSION_CONFIGS = [
         num_demo_participants=4,
     ),
     dict(
-        name='kocher_cda',
-        app_sequence=['kocher_cda'],
-        num_demo_participants=4,
-    ),
-    dict(
-        name="egt",
-        display_name="Eye Gaze Test",
-        app_sequence=["egt"],
-        num_demo_participants=4,
-    ),
-    dict(
-        name="apm",
-        display_name="Advanced Progressive Matrices",
-        app_sequence=["apm"],
-        num_demo_participants=4,
-    ),
-    dict(
         name='stroop',
-        display_name="Stroop Treatment",
+        display_name="1. Stroop Treatment",
         app_sequence=['stroop'],
         num_demo_participants=4,
     ),
     dict(
         name='movie',
-        display_name="Movie Treatment",
+        display_name="1. Movie Treatment",
         app_sequence=['movie'],
+        num_demo_participants=4,
+    ),
+    dict(
+        name='kocher_cda',
+        display_name="2 Asset Market 1",
+        app_sequence=['kocher_cda'],
+        num_demo_participants=4,
+    ),
+    dict(
+        name="crt7",
+        display_name="3.1 Cognitive Reflection Test",
+        app_sequence=["crt7"],
+        num_demo_participants=4,
+    ),
+    dict(
+        name="apm",
+        display_name="3.2 Advanced Progressive Matrices",
+        app_sequence=["apm"],
+        num_demo_participants=4,
+    ),
+    dict(
+        name="egt",
+        display_name="3.3 Eye Gaze Test",
+        app_sequence=["egt"],
+        num_demo_participants=4,
+    ),
+    dict(
+        name="demographics",
+        display_name="4 Demographics + Payments",
+        app_sequence=["demographics"],
         num_demo_participants=4,
     )
 ]
