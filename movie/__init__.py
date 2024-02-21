@@ -99,6 +99,10 @@ def creating_session(subsession: Subsession):
     # check if we have a valid number of players, skipped in debug
     num_players = len(subsession.get_players())
     players_per_group = int(num_players / 2)
+
+    if num_players % 2 != 0:
+        raise ValueError('Number of players must be even')
+
     if not DEBUG and num_players not in (16, 20):
         raise ValueError('Number of players must be 16 or 20')
 

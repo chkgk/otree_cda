@@ -54,6 +54,20 @@ SESSION_CONFIGS = [
         display_name="4 Demographics + Payments",
         app_sequence=["demographics"],
         num_demo_participants=4,
+    ),
+    dict(
+        name="complete_stroop",  # needs second round of market
+        display_name="Complete Experiment - Stroop",
+        app_sequence=["intro", "cda_practice", "stroop", "kocher_cda", "crt7", "apm", "egt", "demographics"],
+        num_demo_participants=4,
+        experiment="stroop"
+    ),
+    dict(
+        name="complete_movie",  # needs second round of market
+        display_name="Complete Experiment - Movie",
+        app_sequence=["intro", "cda_practice", "movie", "kocher_cda", "crt7", "apm", "egt", "demographics"],
+        num_demo_participants=4,
+        experiment="movie"
     )
 ]
 

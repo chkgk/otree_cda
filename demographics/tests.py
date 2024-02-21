@@ -23,4 +23,11 @@ class PlayerBot(Bot):
             "num_previous_participation": random.randint(0, 3),
             "num_known_participants": random.randint(0, 40)
         }
+
+        # check if html contains "Part 1"
+        if self.session.config.get('experiment', None) == "stroop":
+            expect("flush-collapseOne", 'in', self.html)  # only present in part 1 payment data
+        else:
+            expect("flush-collapseOne", 'not in', self.html)  # part 1 does not pay in movie experiment
         yield Payments
+

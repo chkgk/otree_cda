@@ -172,7 +172,7 @@ class Payments(TranslatedPage):
         ps = player.session
 
         context = dict()
-        if pp.vars.get('treatment', 'stroop'):
+        if ps.config.get('experiment', None) == "stroop":
             part1_points = pp.vars.get("part1_points", cu(32))
             part1_task1_points = pp.vars.get("stroop_points", cu(0))
             part1_task2_points = pp.vars.get("crt_points", cu(0))
@@ -193,7 +193,7 @@ class Payments(TranslatedPage):
             })
 
         context.update({
-            "treatment": ps.vars.get("treatment", "stroop"),
+            "treatment": ps.config.get("experiment", None),
             "show_up_eur": ps.config['participation_fee'],
 
             "part2_points": pp.vars.get("part2_points", cu(0)),
