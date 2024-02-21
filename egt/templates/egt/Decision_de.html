@@ -1,0 +1,70 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree_tags %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 'egt/css/custom.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+{% block scripts %}
+    <script>
+        $(document).ready(function(){
+            
+            let otree_timer = document.querySelector(".otree-timer > p");
+            otree_timer.firstChild.replaceWith("Verbleibende Zeit für Aufgabe 3.3:");
+        });
+    </script>
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    Teil 3 - Aufgabe 3.3
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <div class="wrapper">
+         <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            Seite {{ page }} von {{ total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width:{{ progress }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+        <div class="progress-vspace"></div>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Items -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <div class="panel panel-default info">
+            <img src="{% static img %}" class="img-rounded"/>
+
+            <br/>
+            <div class="choices">
+                {% for choice in set %}
+                    <button name="choice"
+                            class="choice"
+                            value="{{ choice }}">
+                        {{ choice }}
+                    </button>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

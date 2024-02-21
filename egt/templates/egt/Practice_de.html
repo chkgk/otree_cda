@@ -10,11 +10,11 @@
 {% endblock %}
 
 
-{# ****************************************************************************************************************** #}
+{#  ****************************************************************************************************************** #}
 {# *** TITLE *** #}
 {# ****************************************************************************************************************** #}
 {% block title %}
-    Practice Round
+    Part 3 - Task 3.3 - Probeaufgabe
 {% endblock %}
 
 
@@ -72,11 +72,11 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4>Your answer was correct.</h4>
+                    <h4>Ihre Antwort war richtig.</h4>
                 </div>
                 <div class="modal-body">
-                    You got the practice right.<br/>
-                    You will receive no more feedback from here on.
+                    Sie haben richtig geantwortet.<br/>
+                    Sie werden von nun an keine weiteren Rückmeldungen mehr erhalten.
                 </div>
                 <div class="modal-footer">
                     {% next_button %}
@@ -92,11 +92,11 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4>Your answer was not correct.</h4>
+                    <h4>Ihre Antwort war nicht richtig.</h4>
                 </div>
                 <div class="modal-body">
-                    The correct answer for this practice item was '{{ practice_correct }}'. <br/>
-                    You will receive no more feedback from here on.
+                    Die richtige Antwort ist '{{ practice_correct }}'. <br/>
+                    Sie werden von nun an keine weiteren Rückmeldungen mehr erhalten.
                 </div>
                 <div class="modal-footer">
                     {% next_button %}

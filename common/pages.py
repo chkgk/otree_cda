@@ -22,7 +22,9 @@ class TranslatedPage(Page):
     def get_template_name(self):
         if self.template_name is not None:
             return f"{self.template_name[:-5]}_{settings.LANGUAGE_CODE}.html"
-        return f'{self.__module__}/{self.__class__.__name__}_{settings.LANGUAGE_CODE}.html'
+
+        pth = self.__module__.split('.')[0]  # this makes it compatible with the old and the new directory structure
+        return f'{pth}/{self.__class__.__name__}_{settings.LANGUAGE_CODE}.html'
 
     def get_context_data(self, **context):
         context = super().get_context_data(**context)
