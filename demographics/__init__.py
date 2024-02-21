@@ -49,8 +49,7 @@ def _(s):
         "What was your math grade at the end of school?": "Wie war Ihre Mathematiknote am Ende der Schule?",
         "satisfactory": "befriedigend",
         "sufficient": "ausreichend",
-        "deficient": "mangelhaft",
-        "inadequate": "ungenügend"
+        "deficient or inadequate": "mangelhaft oder ungenügend",
     }
     if LANGUAGE_CODE in LANGUAGE_MAP.keys():
         return LANGUAGE_MAP[LANGUAGE_CODE][s]
@@ -92,8 +91,7 @@ class Player(BasePlayer):
         (2, _("good")),
         (3, _("satisfactory")),
         (4, _("sufficient")),
-        (5, _("deficient")),
-        (6, _("inadequate"))
+        (5, _("deficient or inadequate"))
     ], widget=widgets.RadioSelect, label=_("What was your math grade at the end of school?"))
 
     risk_appetite = models.IntegerField(choices=[
