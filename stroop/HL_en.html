@@ -18,14 +18,14 @@
     <table class="table text-center">
         <thead>
             <tr>
-                <th rowspan="2" style="border-bottom-color: #000;">Wähle A</th>
+                <th rowspan="2" style="border-bottom-color: #000;">Choose A</th>
                 <th id="table-head-lottery-left">
-                    <p>Option A</p>
+                    <p>Lottery A</p>
                 </th>
                 <th id="table-head-lottery-right" class="left-border">
-                    <p>Option B</p>
+                    <p>Sure amount B</p>
                 </th>
-                <th rowspan="2" style="border-bottom-color: #000;">Wähle B</th>
+                <th rowspan="2" style="border-bottom-color: #000;">Choose B</th>
             </tr>
             <tr id="table-head-tr">
 
@@ -72,7 +72,7 @@
         left_val_sum += val;
         let color = get_fill_color(left_val_sum, make_cutoffs(lottery_left.probabilities), HIGHLIGHT_COLORS);
         let span = document.createElement('span');
-        span.setAttribute("style", `color: ${color}`);
+        // span.setAttribute("style", `color: ${color}`);
         span.innerText = `${val}%`;
         th.appendChild(span);
         table_head_tr.appendChild(th);
@@ -90,7 +90,7 @@
         right_val_sum += val;
         let color = get_fill_color(right_val_sum, make_cutoffs(lottery_right.probabilities), HIGHLIGHT_COLORS);
         let span = document.createElement('span');
-        span.setAttribute("style", `color: ${color}`);
+        // span.setAttribute("style", `color: ${color}`);
         span.innerText = `${val}%`;
         th.appendChild(span);
         table_head_tr.appendChild(th);
@@ -105,6 +105,7 @@
         ip1.name = `hl_a_${num}`;
         ip1.id = `id_hl_a_${num}-0`;
         ip1.value = "True";
+        ip1.required = true;
         td1.appendChild(ip1);
         tr.appendChild(td1);
               
@@ -132,52 +133,12 @@
         ip2.name = `hl_a_${num}`;
         ip2.id = `id_hl_a_${num}-1`;
         ip2.value = "False";
+        ip2.required = true;
         td2.appendChild(ip2);
         tr.appendChild(td2);
         table_body.appendChild(tr);
     }
     
-    // let hidden_input = document.createElement('input');
-    // hidden_input.type = 'hidden';
-    // hidden_input.name = js_vars.lotteries.first_b_field;
-    // hidden_input.id = `id_${js_vars.lotteries.first_b_field}`;
-    // document.getElementById('form').appendChild(hidden_input);
-    
-    // let radio_buttons = document.querySelectorAll('input[type=radio]');
-    // radio_buttons.forEach(radio => radio.addEventListener('click', function () {
-    //     let row = parseInt(radio.id.slice(10, 12));
-    //     let b_selected = radio.id.slice(-1) === '1';
-    //     for (let i = 0; i < lottery_left.prizes[0].length; i++) {
-    //         let num = i.toString().padStart(2, '0');
-    //         let left_right;
-    //         if (b_left) {
-    //             left_right = 1;
-    //             if ((b_selected && i > row) || (!b_selected && i >= row)) {
-    //                 left_right = 0;
-    //             }
-    //         } else {
-    //             left_right = 0;
-    //             if ((b_selected && i >= row) || (!b_selected && i > row)) {
-    //                 left_right = 1;
-    //             }
-    //         }
-    //         document.getElementById(`id_choice-${num}-${left_right}`).checked = true;
-    //     }
-    //     // the input basically identifies the first row in which "B" is chosen. If it is never chosen, value is set to 21.
-    //     if (b_left) {
-    //         if (b_selected) {
-    //             hidden_input.value = row + 1;
-    //         } else {
-    //             hidden_input.value = row;
-    //         }
-    //     } else {
-    //         if (b_selected) {
-    //             hidden_input.value = row;
-    //         } else {
-    //             hidden_input.value = row + 1;
-    //         }
-    //     }
-    // }));
 
 </script>
 {{ endblock }}

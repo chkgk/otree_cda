@@ -15,13 +15,13 @@ SESSION_CONFIGS = [
     ),
     dict(
         name='stroop',
-        display_name="1. Stroop Treatment",
+        display_name="1a Stroop Treatment",
         app_sequence=['stroop'],
         num_demo_participants=4,
     ),
     dict(
         name='movie',
-        display_name="1. Movie Treatment",
+        display_name="1b Movie Treatment",
         app_sequence=['movie'],
         num_demo_participants=4,
     ),
