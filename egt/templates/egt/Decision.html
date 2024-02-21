@@ -13,7 +13,6 @@
 {% block scripts %}
     <script>
         $(document).ready(function(){
-            $('[data-toggle="popover"]').popover({ trigger: "hover", placement: "bottom", sanitize: false, html: true });
             
             let otree_timer = document.querySelector(".otree-timer > p");
             otree_timer.firstChild.replaceWith("Time left to complete this part:");
@@ -57,18 +56,12 @@
 
             <br/>
             <div class="choices">
-                {% for choice, synonyms, examples in set %}
+                {% for choice in set %}
                     <button name="choice"
                             class="choice"
                             value="{{ choice }}">
                         {{ choice }}
                     </button>
-                    <div class="info-icon"
-                         data-toggle="popover"
-                         title="{{ synonyms }}"
-                         data-bs-content="{{ examples }}"
-                         data-html="true">
-                    </div>
                 {% endfor %}
             </div>
         </div>

@@ -15,7 +15,7 @@ class Instructions(Page):
     # ----------------------------------------------------------------------------------------------------------------
     def is_displayed(self):
         return self.subsession.round_number == 1
-    
+
     def before_next_page(player):
         player.participant.vars["egt_overall_timeout"] = time.time() + Constants.gto_seconds
 
@@ -29,6 +29,15 @@ class Practice(Page):
     # ----------------------------------------------------------------------------------------------------------------
     def is_displayed(self):
         return self.subsession.round_number == 1
+
+    def vars_for_template(player):
+        return {
+            "practice_1": Constants.preview_choices[0],
+            "practice_2": Constants.preview_choices[1],
+            "practice_3": Constants.preview_choices[2],
+            "practice_4": Constants.preview_choices[3],
+            "practice_correct": Constants.preview_correct
+        }
 
 
 # ******************************************************************************************************************** #
@@ -61,13 +70,15 @@ class Decision(Page):
         page = self.subsession.round_number
         progress = page / total * 100
 
-        item_set = list(
-            zip(
-                Constants.choices[page - 1],
-                Constants.synonyms[page - 1],
-                Constants.examples[page - 1]
-            )
-        )
+        # item_set = list(
+        #     zip(
+        #         Constants.choices[page - 1],
+        #         Constants.synonyms[page - 1],
+        #         Constants.examples[page - 1]
+        #     )
+        # )
+        
+        item_set = Constants.choices[page - 1]
 
         # return variables
         return {

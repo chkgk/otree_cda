@@ -10,15 +10,6 @@
 {% endblock %}
 
 
-{% block scripts %}
-    <script>
-        $(document).ready(function(){
-            $('[data-toggle="popover"]').popover({ trigger: "hover", placement: "bottom", sanitize: false, html: true });
-        });
-    </script>
-{% endblock %}
-
-
 {# ****************************************************************************************************************** #}
 {# *** TITLE *** #}
 {# ****************************************************************************************************************** #}
@@ -41,66 +32,34 @@
             <!-- --------------------------------------------------------------------------------------------------- -->
             <!-- JEALOUS -->
             <!-- --------------------------------------------------------------------------------------------------- -->
-            <button type="button" class="choice" data-bs-toggle="modal" data-bs-target="#IncorrectAnswer">
-                jealous
+            <button type="button" class="choice" data-bs-toggle="modal" data-bs-target="{{ if practice_1 == practice_correct }}#CorrectAnswer{{ else }}#IncorrectAnswer{{ endif }}">
+                {{ practice_1 }}
             </button>
-            <div class="info-icon"
-                 data-toggle="popover"
-                 title="envious"
-                 data-bs-content="
-                    Tony was <i>jealous</i> of all the tall,
-                    better-looking boys in his class.
-                 "
-                 data-html="true">
-            </div>
+            
 
             <!-- --------------------------------------------------------------------------------------------------- -->
             <!-- PANICKED -->
             <!-- --------------------------------------------------------------------------------------------------- -->
-            <button type="button" class="choice" data-bs-toggle="modal" data-bs-target="#CorrectAnswer">
-                panicked
+            <button type="button" class="choice" data-bs-toggle="modal" data-bs-target="{{ if practice_2 == practice_correct }}#CorrectAnswer{{ else }}#IncorrectAnswer{{ endif }}">
+                {{ practice_2 }}
             </button>
-            <div class="info-icon"
-                 data-toggle="popover"
-                 title="distraught, feeling of terror or anxiety"
-                 data-bs-content="
-                    On waking to find the house on fire,
-                    the whole family were <i>panicked</i>.
-                 "
-                 data-html="true">
-            </div>
+            
 
             <!-- --------------------------------------------------------------------------------------------------- -->
             <!-- ARROGANT -->
             <!-- --------------------------------------------------------------------------------------------------- -->
-            <button type="button" class="choice" data-bs-toggle="modal" data-bs-target="#IncorrectAnswer">
-                arrogant
+            <button type="button" class="choice" data-bs-toggle="modal" data-bs-target="{{ if practice_3 == practice_correct }}#CorrectAnswer{{ else }}#IncorrectAnswer{{ endif }}">
+                {{ practice_3 }}
             </button>
-            <div class="info-icon"
-                 data-toggle="popover"
-                 title="conceited, self-important, having a big opinion of oneself"
-                 data-bs-content="
-                    The <i>arrogant</i> man thought he knew more about
-                    politics than everybody else in the room.
-                 "
-                 data-html="true">
-            </div>
+            
 
             <!-- --------------------------------------------------------------------------------------------------- -->
             <!-- HATEFUL -->
             <!-- --------------------------------------------------------------------------------------------------- -->
-            <button type="button" class="choice" data-bs-toggle="modal" data-bs-target="#IncorrectAnswer">
-                hateful
+            <button type="button" class="choice" data-bs-toggle="modal" data-bs-target="{{ if practice_4 == practice_correct }}#CorrectAnswer{{ else }}#IncorrectAnswer{{ endif }}">
+                {{ practice_4 }}
             </button>
-            <div class="info-icon"
-                 data-toggle="popover"
-                 title="showing intense dislike"
-                 data-bs-content="
-                    The two sisters were <i>hateful</i>
-                    to each other and always fighting.
-                 "
-                 data-html="true">
-            </div>
+            
 
         </div>
     </div>
@@ -136,7 +95,7 @@
                     <h4>Your answer was not correct.</h4>
                 </div>
                 <div class="modal-body">
-                    The correct answer for this practice item was 'panicked'. <br/>
+                    The correct answer for this practice item was '{{ practice_correct }}'. <br/>
                     You will receive no more feedback from here on.
                 </div>
                 <div class="modal-footer">
