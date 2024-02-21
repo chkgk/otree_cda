@@ -2,6 +2,8 @@ from otree.api import Currency as c, currency_range
 from . import models
 from ._builtin import Page, WaitPage
 from .models import Constants
+from otree.settings import DEBUG, LANGUAGE_CODE
+from common.pages import TranslatedPage, LANGUAGE_MAP
 
 import time
 
@@ -9,7 +11,7 @@ import time
 # ******************************************************************************************************************** #
 # *** PAGE INSTRUCTIONS *** #
 # ******************************************************************************************************************** #
-class Instructions(Page):
+class Instructions(TranslatedPage):
 
     # only display instruction in round 1
     # ----------------------------------------------------------------------------------------------------------------
@@ -23,7 +25,7 @@ class Instructions(Page):
 # ******************************************************************************************************************** #
 # *** PAGE DECISION *** #
 # ******************************************************************************************************************** #
-class Decision(Page):
+class Decision(TranslatedPage):
     form_model = models.Player
     form_fields = ['choice']
 

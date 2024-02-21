@@ -1,0 +1,73 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree_tags %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 'apm/css/custom.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    Your Decision
+{% endblock %}
+
+{{ block scripts }}
+<script>
+    let otree_timer = document.querySelector(".otree-timer > p");
+    otree_timer.firstChild.replaceWith("Verbleibende Zeit für Aufgabe 3.2:");
+</script>
+{{ endblock }}
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <div class="wrapper">
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            Page {{ page }} of {{ total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width:{{ progress }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+        <div class="progress-vspace"></div>
+
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Raven Matrices -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <div class="panel panel-default" style="text-align: center;">
+            <img src="{% static img %}" class="matrix">
+
+            <br/>
+            <div class="choices">
+                {{ for i, img in images }}
+                <label for="{{ i }}">
+                    <div class="choice">
+                            <img src="{% static img %}" class="img_choice">
+                        <br/>
+                        <input type="radio" id="{{ i }}" name="choice" value="{{ i }}" required>
+                    </div>
+                </label>
+                {{ if forloop.counter == 4 }}<br>{{ endif }}
+                {{ endfor }}
+            </div>
+        </div>
+    </div>
+
+    {% next_button %}
+
+
+{% endblock %}

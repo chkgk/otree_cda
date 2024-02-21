@@ -6,6 +6,7 @@ from otree.settings import LANGUAGE_CODE
 from .data_en import CHOICES_EN, CORRECT_EN, PREVIEW_CHOICES_EN, PREVIEW_CORRECT_EN
 from .data_de import CHOICES_DE, CORRECT_DE, PREVIEW_CHOICES_DE, PREVIEW_CORRECT_DE
 
+
 author = 'Felix Holzmeister. Adapted by Christian König-Kersting in 2024.'
 
 doc = """
