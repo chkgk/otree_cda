@@ -142,13 +142,18 @@ class Player(BasePlayer):
         (1, _("once before")),
         (2, _("2-5 times")),
         (3, _("more often"))
-    ], label=_("How often have you participated in experiments?"))
+    ], widget=widgets.RadioSelect, label=_("How often have you participated in experiments?"))
     num_known_participants = models.IntegerField(min=0, label=_("How many of the other participants in the room do you know personally (approximately)?"))
 
 
 # PAGES
 class Part4Announcement(TranslatedPage):
     pass
+
+
+class Part4Waitpage(WaitPage):
+    def is_displayed(player):
+        return not DEBUG
 
 
 class Demographics(TranslatedPage):
@@ -204,6 +209,7 @@ class Payments(TranslatedPage):
 
 page_sequence = [
     Part4Announcement,
+    Part4Waitpage,
     Demographics,
     Questionnaire,
     Payments

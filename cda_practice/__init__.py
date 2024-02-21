@@ -1,5 +1,6 @@
 from otree.api import *
-
+from otree.settings import DEBUG, LANGUAGE_CODE
+from common.pages import TranslatedPage, LANGUAGE_MAP
 
 doc = """
 Your app description
@@ -37,4 +38,15 @@ class PracticeSummary(Page):
     pass
 
 
-page_sequence = [PracticeAnnouncement, PracticePeriod, PracticeSummary]
+class Part1Announcement(TranslatedPage):
+    pass
+
+
+class Part1Waitpage(WaitPage):
+    wait_for_all_groups = True
+
+    def is_displayed(player):
+        return not DEBUG
+
+
+page_sequence = [PracticeAnnouncement, PracticePeriod, PracticeSummary, Part1Announcement, Part1Waitpage]

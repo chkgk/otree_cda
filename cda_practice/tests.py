@@ -8,3 +8,4 @@ class PlayerBot(Bot):
         yield Submission(PracticeAnnouncement, check_html=False)
         yield PracticePeriod
         yield PracticeSummary
+        yield Part1Announcement

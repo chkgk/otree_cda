@@ -55,6 +55,10 @@ class Part3Announcement(TranslatedPage):
     pass
 
 
+class Part3Waitpage(WaitPage):
+    def is_displayed(player):
+        return not DEBUG
+
 class CRT7(TranslatedPage):
     form_model = 'player'
     form_fields = ['crt7_jerry', 'crt7_machines', 'crt7_stocks', 'crt7_ball', 'crt7_lake', 'crt7_pig', 'crt7_barrels']
@@ -73,5 +77,6 @@ class CRT7(TranslatedPage):
 
 page_sequence = [
     Part3Announcement,
+    Part3Waitpage,
     CRT7
 ]
