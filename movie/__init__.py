@@ -127,9 +127,10 @@ class Evaluation(TranslatedPage):
     @staticmethod
     def error_message(player, values):
         if values['movie_feeling'] == 1 and values['movie_intensity_anxiety'] is None:
-            return _("Please fill in the intensity of the selected feeling.")
+            return _("Please fill in the intensity of the selected feeling. 1")
+
         if values['movie_feeling'] == 2 and values['movie_intensity_excitement'] is None:
-            return _("Please fill in the intensity of the selected feeling.")
+            return _("Please fill in the intensity of the selected feeling. 2")
 
 
 page_sequence = [
