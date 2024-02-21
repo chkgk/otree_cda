@@ -77,14 +77,11 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
+    condition = models.StringField()
     clip = models.StringField(choioes=C.CLIP_NAMES)
-
     movie_feeling = models.IntegerField(choices=[(1, _("Anxiety / Fear / Nervousness")), (2, _("Excitement / Pleasure / Enthusiasm"))], widget=widgets.RadioSelect)
-
     movie_filler_task = models.BooleanField(choices=[(True, _("Yes")), (False, _("No"))], widget=widgets.RadioSelect, label=_("Do you think this clip is a nice filler task to be used in future experiments?"))
-
     movie_intensity_anxiety = models.IntegerField(min=1, max=9, label=_("Intensity (1 = very little; 9 = very much)"), blank=True)
-
     movie_intensity_excitement = models.IntegerField(min=1, max=9, label=_("Intensity (1 = very little; 9 = very much)"), blank=True)
 
 
@@ -99,10 +96,24 @@ def clip_feeling_choices(player: Player):
 
 
 def creating_session(subsession: Subsession):
-    # Todo: assign clip to player, but this depends on the group assignment in the session.
+    # check if we have a valid number of players, skipped in debug
+    num_players = len(subsession.get_players())
+    players_per_group = int(num_players / 2)
+    if not DEBUG and num_players not in (16, 20):
+        raise ValueError('Number of players must be 16 or 20')
+
+    # first half of players forms a group, second half forms another group
+    subsession.set_group_matrix([[i + 1 for i in range(players_per_group)], [i + 1 for i in range(players_per_group, players_per_group * 2)]])
+
+    # assign condition to players
+    # store participant variables
+    control_group = random.randint(1, 2)
     for player in subsession.get_players():
-        clip = random.choice(C.CLIP_NAMES)
-        player.clip = clip
+        player.condition = 'control' if player.group.id_in_subsession == control_group else 'treatment'
+        player.clip = 'calm' if player.condition == 'control' else 'intense'
+        player.participant.vars['group_id'] = player.group.id_in_subsession
+        player.participant.vars['players_per_group'] = players_per_group
+        player.participant.vars['condition'] = player.condition
 
 
 # PAGES

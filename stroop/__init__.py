@@ -78,6 +78,7 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
+    condition = models.StringField()
     treatment = models.StringField()
     num_trials = models.IntegerField()
     num_correct = models.IntegerField()
@@ -126,8 +127,24 @@ class Trial(ExtraModel):
 
 # FUNCTIONS
 def creating_session(subsession: Subsession):
+    # check if we have a valid number of players, skipped in debug
+    num_players = len(subsession.get_players())
+    players_per_group = int(num_players / 2)
+    if not DEBUG and num_players not in (16, 20):
+        raise ValueError('Number of players must be 16 or 20')
+
+    # first half of players forms a group, second half forms another group
+    subsession.set_group_matrix([[i + 1 for i in range(players_per_group)], [i + 1 for i in range(players_per_group, players_per_group * 2)]])
+
+    # assign condition to players
+    # store participant variables
+    control_group = random.randint(1, 2)
     for player in subsession.get_players():
-        player.treatment = player.participant.vars.get('treatment', random.choice(['congruent', 'incongruent']))
+        player.condition = 'control' if player.group.id_in_subsession == control_group else 'treatment'
+        player.treatment = 'congruent' if player.condition == 'control' else 'incongruent'
+        player.participant.vars['group_id'] = player.group.id_in_subsession
+        player.participant.vars['players_per_group'] = players_per_group
+        player.participant.vars['condition'] = player.condition
 
 
 def get_trial(is_congruent, exclude_color=None):

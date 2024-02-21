@@ -1,6 +1,7 @@
 from otree.api import *
 from otree.settings import DEBUG, LANGUAGE_CODE
 from common.pages import TranslatedPage, LANGUAGE_MAP
+import random
 
 doc = """
 Your app description
@@ -24,6 +25,8 @@ class Group(BaseGroup):
 class Player(BasePlayer):
     pass
 
+
+# FUNCTIONS
 
 # PAGES
 class PracticeAnnouncement(Page):
