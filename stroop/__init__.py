@@ -39,6 +39,10 @@ class C(BaseConstants):
 
     TASK_DURATION = 300  # seconds, set to 300
 
+    POINTS_PER_EUR = 160
+    CRT3_VAR_PAY = cu(0.5 * POINTS_PER_EUR)  # cu are in points!
+    STROOP_FIX_PAY = cu(3.00 * POINTS_PER_EUR)  # cu are in points!
+
     COLORS = ['purple', 'brown', 'yellow', 'green', 'red', 'blue']
     COLOR_NAMES = {
         'purple': 'violett',
@@ -88,7 +92,7 @@ class Player(BasePlayer):
     crt3_daughters = models.StringField(label=_("Emily's father has three daughters. The first two are called April and May. What is the name of the third daughter?"))
     crt3_dirt = models.IntegerField(label=_("How many cubic feet of dirt are there in a hole that is 3’ deep x 3’ wide x 3’ long?"), min=0, max=100)
 
-    crt3_score = models.FloatField()
+    crt3_score = models.IntegerField()
 
     hl_a_1 = models.BooleanField(widget=widgets.RadioSelect)
     hl_a_2 = models.BooleanField(widget=widgets.RadioSelect)
@@ -159,20 +163,38 @@ def calculate_payoff(player: Player, lottery):
     random_row = random.randint(1, max_row)
     chose_a = getattr(player, f"hl_a_{random_row}")
 
+    pay_left = random.random() < lottery["lottery_a"]["probabilities"][0]
     if not chose_a:
         lottery_outcome = lottery["lottery_b"]["prizes"][0][random_row - 1]
 
     else:
-        pay_left = random.random() < lottery["lottery_a"]["probabilities"][0]
         if pay_left:
             lottery_outcome = lottery["lottery_a"]["prizes"][0][random_row - 1]
         else:
             lottery_outcome = lottery["lottery_a"]["prizes"][1][random_row - 1]
 
-    player.payoff = lottery_outcome
-    player.participant.vars["pay_for_hl_a"] = chose_a
-    player.participant.vars["pay_for_hl_row"] = random_row
-    player.participant.vars["pay_hl_outcome"] = lottery_outcome
+    crt3_payoff = cu(player.crt3_score * C.CRT3_VAR_PAY)
+    lottery_points = cu(lottery_outcome * C.POINTS_PER_EUR)
+
+    player.payoff = lottery_points + crt3_payoff + C.STROOP_FIX_PAY
+
+    pp = player.participant
+
+    # stroop - task 1.1
+    pp.vars["stroop_points"] = C.STROOP_FIX_PAY
+
+    # crt - task 1.2
+    pp.vars["crt_points"] = crt3_payoff
+    pp.vars["crt_num_correct"] = player.crt3_score
+
+    # hl - task 1.3
+    pp.vars["hl_chose_a"] = chose_a
+    pp.vars["hl_row"] = random_row
+    pp.vars["hl_lottery_low"] = pay_left
+    pp.vars["hl_points"] = lottery_points
+
+    # total part 1
+    pp.vars["part_1_points"] = player.payoff
 
 
 # PAGES
@@ -237,7 +259,7 @@ class CRT3(TranslatedPage):
             player.crt3_sheep == 8,
             player.crt3_daughters.strip().lower() == 'emily',
             player.crt3_dirt == 0
-        ])/3
+        ])
 
 
 class HL(TranslatedPage):

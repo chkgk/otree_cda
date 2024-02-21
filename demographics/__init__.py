@@ -162,7 +162,44 @@ class Questionnaire(TranslatedPage):
 
 
 class Payments(TranslatedPage):
-    pass
+    def vars_for_template(player):
+        pp = player.participant
+        ps = player.session
+
+        context = dict()
+        if pp.vars.get('treatment', 'stroop'):
+            part1_points = pp.vars.get("part1_points", cu(32))
+            part1_task1_points = pp.vars.get("stroop_points", cu(0))
+            part1_task2_points = pp.vars.get("crt_points", cu(0))
+            part1_task3_points = pp.vars.get("hl_points", cu(32))
+            context.update({
+                "part1_points": part1_points,
+                "part1_eur": part1_points.to_real_world_currency(ps),
+                "part1_task1_points": part1_task1_points,
+                "part1_task1_eur": part1_task1_points.to_real_world_currency(ps),
+                "part1_task2_points": part1_task2_points,
+                "part1_task2_eur": part1_task2_points.to_real_world_currency(ps),
+                "part1_task3_points": part1_task3_points,
+                "part1_task3_eur": part1_task3_points.to_real_world_currency(ps),
+                "crt_num_correct": pp.vars.get("crt_num_correct", 0),
+                "hl_lottery_choice": "A" if pp.vars.get("hl_chose_a", True) else "B",
+                "hl_row": pp.vars.get("hl_row", 1),
+                "hl_outcome": "€0.20" if pp.vars.get("hl_pay_left", True) else "€4.20",
+            })
+
+        context.update({
+            "treatment": ps.vars.get("treatment", "stroop"),
+            "show_up_eur": ps.config['participation_fee'],
+
+            "part2_points": pp.vars.get("part2_points", cu(0)),
+            "part2_eur": pp.vars.get("part2_points", cu(0)).to_real_world_currency(ps),
+
+            "market_repetition": pp.vars.get("market_repetition", 1),
+
+            "total_points": pp.payoff,
+            "total_eur": pp.payoff_plus_participation_fee(),
+        })
+        return context
 
 
 page_sequence = [
