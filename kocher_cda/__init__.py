@@ -4,6 +4,7 @@ from sqlalchemy import Column, DateTime, String
 from sqlalchemy.sql import func
 from uuid import uuid4
 import random
+import time
 import json
 
 doc = """
@@ -37,6 +38,7 @@ class Subsession(BaseSubsession):
 class Group(BaseGroup):  # market level
     dividend = models.IntegerField()
     closing_price = models.IntegerField()
+    starting_timestamp = models.IntegerField()
 
 
 class Player(BasePlayer):
@@ -50,35 +52,45 @@ def generate_uuid():
 
 
 class Order(ExtraModel):
-    player = models.Link(Player)
-    group = models.Link(Group)
     uuid = models.StringField()
+    group = models.Link(Group)
     round = models.IntegerField()
-    is_bid = models.BooleanField()
-    price = models.IntegerField()
+    player = models.Link(Player)
+    kind = models.StringField()
+    side = models.StringField()
     quantity = models.IntegerField()
+    price = models.IntegerField()
+    filled = models.BooleanField(default=False)
+    replaced_by = models.StringField()
     deleted = models.BooleanField(default=False)
-    created = Column(DateTime(timezone=True), server_default=func.now())
+    created = models.IntegerField()
 
     def as_dict(self):
         return dict(
-            player_id=self.player.id_in_group,
-            group_id=self.group.id_in_subsession,
             uuid=self.uuid,
+            group_id=self.group.id_in_subsession,
             round=self.round,
-            is_bid=self.is_bid,
-            price=self.price,
+            player_id=self.player.id_in_group,
+            kind=self.kind,
+            side=self.side,
             quantity=self.quantity,
+            price=self.price,
+            filled=self.filled,
+            replaced_by=self.replaced_by,
             deleted=self.deleted,
-            created=str(self.created)
+            created=self.created
         )
 
+
 class Trade(ExtraModel):
-    order = models.Link(Order)
+    group = models.Link(Group)
+    round = models.IntegerField()
+    ask = models.Link(Order)
+    bid = models.Link(Order)
     quantity = models.IntegerField()
     price = models.FloatField()
-    type = models.StringField()
-    created = Column(DateTime(timezone=True), server_default=func.now())
+    created = models.IntegerField()
+
 
 # FUNCTIONS
 def vars_for_admin_report(subsession):
@@ -95,7 +107,7 @@ def creating_session(subsession):
     else:
         if num_traders % 16 != 0 and num_traders % 20 != 0:
             raise Exception("Need a multiple of 16 or 20 traders")
-    
+
         traders_per_market = 10 if num_traders % 20 == 0 else 8
         num_markets = int(num_traders / traders_per_market)
 
@@ -134,69 +146,152 @@ def creating_session(subsession):
                 else:
                     player.cash, player.assets = C.CASH_AND_ASSET_ENDOWMENTS["low"]
 
+def handle_order(player, data):
+    if data["kind"] == "limit":
+        return handle_limit_order(player, data)
 
-def handle_order(player, is_bid, data):
-    order = Order.create(player=player, group=player.group, round=player.round_number, uuid=str(uuid4()), is_bid=is_bid, price=data["price"], quantity=data["quantity"])
-    typ = "bid_placed" if is_bid else "ask_placed"
+    if data["kind"] == "market":
+        return handle_market_order(player, data)
+
+    print(data)
+
+
+def handle_limit_order(player, data):
+    order = Order.create(
+        uuid=str(uuid4()),
+        group=player.group,
+        round=player.round_number,
+        player=player,
+        kind="limit",
+        side=data["side"],
+        quantity=data["quantity"],
+        price=data["price"],
+        created=int(time.time()) - player.group.starting_timestamp
+    )
+    print(order)
     data.update({"uuid": order.uuid, "player_id": order.player.id_in_group})
-    return {0: {"type": typ, "data": data}}
+    return {0: {"type": 'order', "payload": data}}
 
 
-def handle_market_order(player, is_bid, data):
-    orders = Order.filter(group=player.group, round=player.round_number, is_bid=(not is_bid), deleted=False)
+def handle_market_order(player, data):
+    self_side = data["side"]
+    other_side = "ask" if self_side == "bid" else "bid"
 
-    orders = sorted(orders, key=lambda x: x.price, reverse=(not is_bid))
+    # get open orders
+    orders = Order.filter(
+        group=player.group,
+        round=player.round_number,
+        kind="limit",
+        side=other_side,
+        filled=False,
+        deleted=False
+    )
 
-    quantity = data["quantity"]
-    to_fill = int(quantity)
-    trades = list()
-    to_remove = list()
-    to_update = list()
+    if not orders:
+        # ToDo: Implement no orders found
+        return
 
-    # this needs to track volume to check if budget is exceeded
-    for order in orders:
-        if to_fill >= order.quantity:
-            to_fill -= order.quantity
-            trades.append({"object": order, "uuid": order.uuid, "initiated_by": player.id_in_group, "affected": order.player.id_in_group, "price": order.price, "quantity": order.quantity})
-            to_remove.append(order)
-            order.deleted = True
-        else:  # to fill < order.quantity
-            order.quantity -= to_fill
-            trades.append({"object": order, "uuid": order.uuid, "initiated_by": player.id_in_group, "affected": order.player.id_in_group, "price": order.price, "quantity": to_fill})
-            to_update.append(order)
-            to_fill = 0
+    # get the best one
+    orders = sorted(orders, key=lambda x: x.price, reverse=(self_side == "ask"))
+    best_order = orders[0]
 
-        if to_fill == 0:
-            break
+    # take the minimum of the market order and the limit order
+    ordered_quantity = int(data["quantity"])
+    actual_quantity = min(ordered_quantity, best_order.quantity)
 
-    affected_players = {trade["affected"]: {} for trade in trades}
-    affected_players.update({player.id_in_group: {}})
-    for trade in trades:
-        q = int(trade["quantity"])
-        p = int(trade["price"])
-        player.cash -= p * q
-        player.assets += q
-        other_player = player.group.get_player_by_id(trade["affected"])
-        other_player.cash += p * q
-        other_player.assets -= q
+    # create the market order
+    market_order = Order.create(
+        uuid=str(uuid4()),
+        group=player.group,
+        round=player.round_number,
+        player=player,
+        kind="market",
+        side=self_side,
+        quantity=actual_quantity,
+        price=best_order.price,
+        created=int(time.time()) - player.group.starting_timestamp
+    )
 
-        Trade.create(order=trade['object'], type="market", quantity=q, price=p)
+    # create the trade
+    trade = Trade.create(
+        group=player.group,
+        round=player.round_number,
+        ask=market_order if self_side == "ask" else best_order,
+        bid=market_order if self_side == "bid" else best_order,
+        quantity=actual_quantity,
+        price=best_order.price,
+        created=int(time.time()) - player.group.starting_timestamp
+    )
 
-        affected_players[other_player.id_in_group] = {"cash": other_player.cash, "assets": other_player.assets}
-    affected_players[player.id_in_group] = {"cash": player.cash, "assets": player.assets}
+    # update the original limit order
+    best_order.filled = True
+    to_add = {}
+    if ordered_quantity < best_order.quantity:
+        # create a replacement order
+        remaining_quantity = best_order.quantity - ordered_quantity
+        replacement_order = Order.create(
+            uuid=str(uuid4()),
+            group=best_order.group,
+            round=best_order.round,
+            player=best_order.player,
+            kind=best_order.kind,
+            side=best_order.side,
+            quantity=remaining_quantity,
+            price=best_order.price,
+            created=int(time.time()) - player.group.starting_timestamp
+        )
+        to_add = replacement_order.as_dict()
+        best_order.replaced_by = replacement_order.uuid
 
+    # get player objects
+    ask_player = player if self_side == "ask" else best_order.player
+    bid_player = player if self_side == "bid" else best_order.player
 
-    return {0: {"type": "market_order_filled", "data": {"to_remove": [order.uuid for order in to_remove], "to_update": [{"uuid": order.uuid, "quantity": order.quantity} for order in to_update], "affected_players": affected_players}}}
+    # work out new cash and assets
+    ask_player.cash += actual_quantity * best_order.price
+    ask_player.assets -= actual_quantity
+    bid_player.cash -= actual_quantity * best_order.price
+    bid_player.assets += actual_quantity
+
+    affected_players = {
+        ask_player.id_in_group: {
+            "cash": ask_player.cash,
+            "assets": ask_player.assets,
+            "purchase_history_add": {},
+            "sale_history_add": {
+                "price": best_order.price,
+                "quantity": actual_quantity
+            }
+        },
+        bid_player.id_in_group: {
+            "cash": bid_player.cash,
+            "assets": bid_player.assets,
+            "purchase_history_add": {
+                "price": best_order.price,
+                "quantity": actual_quantity
+            },
+            "sale_history_add": {}
+        }
+    }
+
+    return {0: {
+        "type": "market_order_filled",
+        "payload": {
+            "to_remove": best_order.uuid,
+            "to_add": to_add,
+            "affected_players": affected_players,
+            "last_price": best_order.price,
+        }
+    }}
 
 
 def cancel_order(player, data):
-    orders = Order.filter(player=player, uuid=data["uuid"], deleted=False)
+    orders = Order.filter(player=player, round=player.round_number, uuid=data["uuid"], deleted=False)
     for order in orders:
         order.deleted = True
-        data.update({"is_bid": order.is_bid})
-        return {0: {"type": "order_cancelled", "data": data}}
+        return {0: {"type": "order_cancelled", "payload": data}}
     else:
-        return {0: {"type": "order_cancel_failed", "data": data}}
+        return {0: {"type": "order_cancel_failed", "payload": data}}
 
 
 # PAGES
@@ -209,6 +304,7 @@ class TradingWaitPage(WaitPage):
     # wait_for_all_groups = True
 
     def after_all_players_arrive(group: Group):
+        group.starting_timestamp = int(time.time())
         if group.round_number == 1:
             return
 
@@ -219,39 +315,48 @@ class TradingWaitPage(WaitPage):
 
 class Trading(Page):
     # timeout_seconds = C.TRADING_SECONDS
+    # timeout_seconds = 120
     
     @staticmethod
-    def live_method(player, data):
-        if data["type"] == "place_ask":
-            return handle_order(player, False, data["data"])
-        elif data["type"] == "place_bid":
-            return handle_order(player, True, data["data"])
-        elif data["type"] == "cancel_order":
-            return cancel_order(player, data["data"])
-        elif data["type"] == "place_market_ask":
-            return handle_market_order(player, False, data["data"])
-        elif data["type"] == "place_market_bid":
-            return handle_market_order(player, True, data["data"])
-        else:
-            print(data)
+    def live_method(player, req):
+        print(req)
+        if req["type"] == "order":
+            return handle_order(player, req["payload"])
+
+        if req["type"] == "cancel_order":
+            return cancel_order(player, req["payload"])
+
 
     @staticmethod
     def js_vars(player):
+        orders = Order.filter(group=player.group, round=player.round_number, kind="limit", filled=False, deleted=False)
+        asks = [{"price": order.price, "quantity": order.quantity, "uuid": order.uuid, "player_id": order.player.id_in_group} for order in orders if order.side == "ask"]
 
-        asks = [{"price": order.price, "quantity": order.quantity, "uuid": order.uuid, "player_id": order.player.id_in_group} for order in Order.filter(group=player.group, is_bid=False, deleted=False)]
+        bids = [{"price": order.price, "quantity": order.quantity, "uuid": order.uuid, "player_id": order.player.id_in_group} for order in orders if order.side == "bid"]
 
-        bids = [{"price": order.price, "quantity": order.quantity, "uuid": order.uuid, "player_id": order.player.id_in_group} for order in Order.filter(group=player.group, is_bid=True, deleted=False)]
+        trades = Trade.filter(group=player.group, round=player.round_number)
+        purchase_history = [{"price": t.price, "quantity": t.quantity, "created": t.created} for t in trades if t.bid.player == player]
+        purchase_history.reverse()
+
+        sale_history = [{"price": t.price, "quantity": t.quantity, "created": t.created} for t in trades if t.ask.player == player]
+        sale_history.reverse()
+
+        chart_series = [[t.created, t.price] for t in trades]
 
         return {
             "player_id": player.id_in_group,
             "asks": sorted(asks, key=lambda x: x["price"]),
             "bids": sorted(bids, key=lambda x: x["price"], reverse=True),
+            "purchase_history": purchase_history,
+            "sale_history": sale_history,
             "cash": player.cash,
             "assets": player.assets,
+            "last_price": trades[-1].price if trades else None,
+            "chart_series": chart_series,
+            "market_start": player.group.starting_timestamp
         }
 
     def before_next_page(player, timeout_happened):
-
         # ToDo: actually implement last trade price
         last_trade_price = random.randint(20, 100)
         print("last trade price not implemented")
@@ -262,9 +367,10 @@ class Trading(Page):
         player.dividend_payment = player.assets * player.group.dividend
         player.next_cash = player.cash + player.dividend_payment
 
+
 class TradingSummary(Page):
     # timeout_seconds = C.TRADING_SUMMARY_SECONDS
-    
+
     def vars_for_template(player):
         history = []
         for p in player.in_all_rounds():
@@ -272,7 +378,7 @@ class TradingSummary(Page):
             if p.round_number <= player.round_number:
                 history.append({
                     "round": p.round_number, 
-                    "cash": p.cash, 
+                    "cash": p.cash,
                     "assets": p.assets,
                     "closing_price": g.closing_price,
                     "dividend": g.dividend,

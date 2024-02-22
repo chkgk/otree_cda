@@ -1,11 +1,101 @@
 {{ block title }}
-    Trading
+    Trading Period {{ player.round_number }} of {{ C.NUM_ROUNDS }}
 {{ endblock }}
 
 {{ block styles}}
+    <link rel="stylesheet" href="{{ static 'bootstrap-icons/font/bootstrap-icons.min.css' }}">
     <style>
         .otree-body {
             max-width: 1200px;
+        }
+        
+        .otree-title {
+            display: inline-block;
+            float: left;
+        }
+        
+        .page-header {
+            padding-top: 0;
+        }
+        
+        .otree-timer {
+            display: inline-block;
+            float: right;
+            margin-bottom: 0;
+            margin-top: 20px;
+            padding: 0.5rem;
+            width: 150px;
+            text-align: center;
+        }
+        .otree-timer p {
+            margin: 0;
+        }
+        /* bin */
+        i.bi {
+            color: #ff0000;
+        }
+        
+        /* scrollable table bodies */
+        table {
+            width: 100%;
+            border-spacing: 0;
+        }
+        
+        thead, tbody, tr, th, td { display: block; }
+        
+        thead tr, tbody tr {
+            /* fallback */
+            width: 97%;
+            /* minus scroll bar width */
+            width: -webkit-calc(100% - 16px);
+            width:    -moz-calc(100% - 16px);
+            width:         calc(100% - 16px);
+        }
+        
+        tr:after {  /* clearing float */
+            content: ' ';
+            display: block;
+            visibility: hidden;
+            clear: both;
+        }
+        
+        .history tbody {
+            height: 120px;
+        }
+        .order-book tbody {
+            height: 240px;
+        }
+
+        tbody {
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        tbody td, thead th {
+            float: left;
+        }
+        
+        /* for tables with two cols */
+        .c2 {
+            tbody td, thead th {
+                width: 48%;
+            }
+        }
+        /* for tables with three cols, small col for trash bin */
+        .c3 {
+            tbody td:nth-child(1), tbody td:nth-child(2),
+            thead th:nth-child(1), thead th:nth-child(2) {
+                width: 43%;
+            }
+            tbody td:last-child, thead th:last-child {
+                width: 10%;
+            }
+        }
+        
+        .order-book tbody tr:first-child > td {
+            /*background-color: rgb(221, 232, 223);*/
+            font-weight: bold;
+            background-color: #f0faf0;
         }
     </style>
     <style>
@@ -55,73 +145,141 @@
 {{ endblock }}
 
 {{ block content }}
-    <div class="row mb-5">
+    <div class="row mb-3">
         <div class="col-4">
-            <h2>Chart</h2>
+            <h3>Portfolio</h3>
+            <p>
+                Assets: <span id="id_assets">{{ player.assets }}</span><br>
+                Cash: <span id="id_cash">{{ player.cash }}</span>   
+            </p>
+            <p>
+                Available assets: <span id="id_available_assets"></span><br>
+                Available cash: <span id="id_available_cash"></span>
+            </p>
+        </div>
+        <div class="col-4">
+            <h3>Your sales</h3>
+            <table class="table table-sm history c2" id="id_sales_history_table">
+                <thead>
+                    <tr>
+                        <th class="col-6">Price</th>
+                        <th class="col-6">Quantity</th>
+                    </tr>
+                </thead>
+                <tbody id="id_sales_history">
+
+                </tbody>
+            </table>
+        </div>
+        <div class="col-4">
+            <h3>Your purchases</h3>
+            <table class="table table-sm history c2" id="id_purchase_history_table">
+                <thead>
+                    <tr>
+                        <th class="col-6">Price</th>
+                        <th class="col-6">Quantity</th>
+                    </tr>
+                </thead>
+                <tbody id="id_purchase_history">
+
+                </tbody>
+            </table>            
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">
+<!--            <h3>Chart</h3>-->
+            <p>
+                Last price: <span id="id_stock_price"></span>
+            </p>
             <figure class="highcharts-figure">
                 <div id="container"></div>
             </figure>
         </div>
-        <div class="col-4">
-            <h2>Bids</h2>
-        <div class="col">
-            <h2>Bids (buyers)</h2>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody id="id_bid_orders">
+        <div class="col-8">
+            <div class="row mb-3">
+                <div class="col-6">
+                    <h3>Sell offers</h3>
+                    <table class="table table-sm order-book c3" id="id_ask_orders_table">
+                        <thead>
+                            <tr>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody id="id_ask_orders">
+        
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-6">
+                    <h3>Buy offers</h3>
+                    <table class="table table-sm order-book c3" id="id_bid_orders_table">
+                        <thead>
+                            <tr>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody id="id_bid_orders">
+        
+                        </tbody>
+                    </table>
+                </div>    
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-6">
+<!--                    <h3>Market bid</h3>-->
+                    <div class="input-group">
+                        <span class="input-group-text">Q:</span>
+                        <input type="number" inputmode="numeric" min="1" step="1" name="bid_market_quantity" id="id_bid_market_quantity" placeholder="Quantity" class="form-control"  aria-describedby="id_place_market_bid">
+                        <button type="button" id="id_place_market_bid" class="btn btn-outline-primary">buy</button>
+                    </div>
 
-                </tbody>
-            </table>
-        </div>
-        <div class="col-4">
-            <h2>Asks</h2>
-        <div class="col">
-            <h2>Asks (sellers)</h2>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody id="id_ask_orders">
-
-                </tbody>
-            </table>
+                </div>
+                <div class="col-6">
+<!--                    <h3>Market ask</h3>-->
+                    <div class="input-group">
+                        <span class="input-group-text">Q:</span>
+                        <input type="number" inputmode="numeric" min="1" step="1" name="ask_market_quantity" id="id_ask_market_quantity" placeholder="Quantity" class="form-control" aria-describedby="id_place_market_ask">
+                        <button type="button" id="id_place_market_ask" class="btn btn-outline-primary">sell</button>
+                    </div>
+                    
+                </div>    
+            </div>
+            
+            <div class="row">
+                <div class="col-6">
+                    <h3>Post sell offer</h3>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Q:</span>
+                        <input type="number" inputmode="numeric" min="1" step="1" name="ask_limit_quantity" id="id_ask_limit_quantity" placeholder="Quantity" class="form-control">
+                        <span class="input-group-text">P:</span>
+                        <input type="number" inputmode="numeric" min="1" step="1" name="ask_limit_price" id="id_ask_limit_price" placeholder="Price" class="form-control">
+                        <button type="button" id="id_place_limit_ask" class="btn btn-outline-primary">post</button>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <h3>Post buy offer</h3>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Q:</span>
+                        <input type="number" inputmode="numeric" min="1" step="1" name="bid_limit_quantity" id="id_bid_limit_quantity" placeholder="Quantity" class="form-control">
+                        <span class="input-group-text">P:</span>
+                        <input type="number" inputmode="numeric" min="1" step="1" name="bid_limit_price" id="id_bid_limit_price" placeholder="Price" class="form-control">
+                        <button type="button" id="id_place_limit_bid" class="btn btn-outline-primary">post</button>
+                    </div>
+                </div>    
+            </div>
         </div>
     </div>
-    <div class="row mb-5">
-        <div class="col-4">
-            <h2>Portfolio</h2>
-            <b>Cash:</b> <span id="id_cash">{{ player.cash }}</span><br>
-            <b>Assets:</b> <span id="id_assets">{{ player.assets }}</span>
-        </div>
-        <div class="col-4">
-            <h2>Limit orders</h2>
-            <input type="number" inputmode="numeric" min="1" step="1" name="order_quantity" id="id_order_quantity" placeholder="Quantity" class="form-control">
-            <input type="number" inputmode="decimal" min="0.01" name="order_price" id="id_order_price" placeholder="Price" class="form-control">
-            <button type="button" id="id_place_bid" class="btn btn-outline-success">Place Bid</button>
-            <button type="button" id="id_place_ask" class="btn btn-outline-primary">Place Ask</button>
-        </div>
-        <div class="col-4">
-            <h2>Market orders</h2>
-            <input type="number" inputmode="numeric" min="1" step="1" name="market_order_quantity" id="id_market_order_quantity" placeholder="Quantity" class="form-control">
-            <button type="button" id="id_place_market_bid" class="btn btn-outline-success">Place Market Bid</button>
-            <button type="button" id="id_place_market_ask" class="btn btn-outline-primary">Place Market Ask</button>
-        </div>
-    </div>
-
 
     {{ formfields }}
     {{ if view.is_debug }}
-        {{ next_button }}
+        <em>The next button is only shown in debug mode.</em> {{ next_button }}
     {{ endif }}
 
 {{ endblock }}
@@ -130,7 +288,7 @@
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/series-label.js"></script>
 <script>
-    Highcharts.chart('container', {
+    let price_chart = Highcharts.chart('container', {
         chart: {
             type: 'spline'
         },
@@ -147,16 +305,16 @@
             enabled: false
         },
         xAxis: {
-            tickInterval: 30,
+            tickInterval: 20,
             title: {
-                text: 'Second'
+                text: 'Seconds'
             },
             min: 0,
             max: 120
         },
         yAxis: {
             title: {
-                text: 'Punkte'
+                text: 'Points'
             },
             min: 0,
         },
@@ -196,53 +354,107 @@
 
 </script>
 <script>
-    let ask_table = document.getElementById("id_ask_orders");
-    let bid_table = document.getElementById("id_bid_orders");
+    let purchase_history_body = document.getElementById("id_purchase_history");
+    let sale_history_body = document.getElementById("id_sales_history");
     
-    let order_quantity = document.getElementById("id_order_quantity");
-    let order_price = document.getElementById("id_order_price");
+    let ask_table_body = document.getElementById("id_ask_orders");
+    let bid_table_body = document.getElementById("id_bid_orders");
     
-    let place_ask = document.getElementById("id_place_ask");
-    let place_bid = document.getElementById("id_place_bid");
+    let ask_limit_quantity = document.getElementById("id_ask_limit_quantity");
+    let ask_limit_price = document.getElementById("id_ask_limit_price");
+    
+    let bid_limit_quantity = document.getElementById("id_bid_limit_quantity");
+    let bid_limit_price = document.getElementById("id_bid_limit_price");
+    
+    let place_limit_ask = document.getElementById("id_place_limit_ask");
+    let place_limit_bid = document.getElementById("id_place_limit_bid");
     
     // market
+    let ask_market_quantity = document.getElementById("id_ask_market_quantity");
+    let bid_market_quantity = document.getElementById("id_bid_market_quantity");
+    
     let place_market_ask = document.getElementById("id_place_market_ask");
     let place_market_bid = document.getElementById("id_place_market_bid");
-    let market_order_quantity = document.getElementById("id_market_order_quantity");
     
     let ask_orders = [];
     let bid_orders = [];
     
+    let purchase_history = [];
+    let sale_history = [];
+    
     let cash_field = document.getElementById("id_cash");
     let assets_field = document.getElementById("id_assets");
+    let available_cash_field = document.getElementById("id_available_cash");
+    let available_assets_field = document.getElementById("id_available_assets");
+    let stock_price_field = document.getElementById("id_stock_price");
     
-    cash = js_vars.cash;
-    assets = js_vars.assets;
+    let cash, assets, last_price;
+    let market_start = js_vars.market_start;
     
     let my_player_id = js_vars.player_id;
     
+    // timer setup
+    let timer_element = document.querySelector(".otree-timer>p");
+    if (timer_element !== null) {
+        timer_element.firstChild.textContent = "Time left:\n"
+    }
+    
+    function is_empty(obj) {
+        return Object.keys(obj).length === 0;
+    }
     function setup() {
         ask_orders = js_vars.asks;
         bid_orders = js_vars.bids;
-        draw_table(ask_table, ask_orders);
-        draw_table(bid_table, bid_orders);
+        purchase_history = js_vars.purchase_history;
+        sale_history = js_vars.sale_history;
+        cash = js_vars.cash;
+        assets = js_vars.assets;
+        last_price = js_vars.last_price;
+        stock_price_field.innerHTML = last_price || "";
+        price_chart.series[0].setData(js_vars.chart_series);
+        draw_table(ask_table_body, ask_orders);
+        draw_table(bid_table_body, bid_orders);
+        draw_history_table(purchase_history_body, purchase_history);
+        draw_history_table(sale_history_body, sale_history);
     }
     
     function liveRecv(data) {
         console.log(data);
-        if (data.type == "ask_placed") {
-            ask_placed(data.data);
+        if (data.type === "order") {
+            handle_order(data.payload);
         }
-        if (data.type == "bid_placed") {
-            bid_placed(data.data);
+        
+        if (data.type === "order_cancelled") {
+            remove_order(data.payload.uuid);
         }
-        if (data.type == "order_cancelled") {
-            cancel_order(data.data);
+        
+        if (data.type === "market_order_filled") {
+            remove_order(data.payload.to_remove);
+            if (data.payload.to_add) {
+                if (data.payload.to_add.side === "ask") {
+                    add_ask_order(ask_orders, data.payload.to_add)
+                    draw_table(ask_table_body, ask_orders);
+                }
+                if (data.payload.to_add.side === "bid") {
+                    add_bid_order(bid_orders, data.payload.to_add)
+                    draw_table(bid_table_body, bid_orders);
+                }
+            }
+            stock_price_field.innerHTML = data.payload.last_price;
+            let current_second = Math.floor(Date.now() / 1000) - market_start;
+            price_chart.series[0].addPoint([current_second, data.payload.last_price]);
+            update_if_affected(data.payload.affected_players);
         }
-        if (data.type == "market_order_filled") {
-            remove_orders(data.data.to_remove);
-            update_orders(data.data.to_update);
-            update_if_affected(data.data.affected_players);
+    }
+    
+    function handle_order(data) {
+        if (data.kind === "limit") {
+            if (data.side === "ask") {
+                ask_placed(data)
+            }
+            if (data.side === "bid") {
+                bid_placed(data)
+            }
         }
     }
     
@@ -252,64 +464,35 @@
             assets = data[my_player_id].assets;
             cash_field.innerHTML = cash;
             assets_field.innerHTML = assets;
-        }
-    }
-    
-    function remove_orders(data) {
-        for (let j = 0; j < data.length; j++) {
-            for (let i = 0; i < bid_orders.length; i++) {
-                if (bid_orders[i].uuid == data[j]) {
-                    bid_orders.splice(i, 1);
-                    draw_table(bid_table, bid_orders);
-                    break;
-                }
+            
+            console.log(data[my_player_id].purchase_history_add, typeof(data[my_player_id].purchase_history_add))
+            console.log(data[my_player_id].sale_history_add, typeof(data[my_player_id].sale_history_add))
+            
+            if (!is_empty(data[my_player_id].purchase_history_add)) {
+                purchase_history.unshift(data[my_player_id].purchase_history_add);
+                draw_history_table(purchase_history_body, purchase_history);
             }
-            for (let i = 0; i < ask_orders.length; i++) {
-                if (ask_orders[i].uuid == data[j]) {
-                    ask_orders.splice(i, 1);
-                    draw_table(ask_table, ask_orders);
-                    break;
-                }
+            if (!is_empty(data[my_player_id].sale_history_add)) {
+                sale_history.unshift(data[my_player_id].sale_history_add);
+                draw_history_table(sale_history_body, sale_history);
             }
         }
     }
     
-    function update_orders(data) {
-        for (let j = 0; j < data.length; j++) {
-            for (let i = 0; i < bid_orders.length; i++) {
-                if (bid_orders[i].uuid == data[j].uuid) {
-                    bid_orders[i].quantity = data[j].quantity;
-                    draw_table(bid_table, bid_orders);
-                    break;
-                }
-            }
-            for (let i = 0; i < ask_orders.length; i++) {
-                if (ask_orders[i].uuid == data[j].uuid) {
-                    ask_orders[i].quantity = data[j].quantity;
-                    draw_table(ask_table, ask_orders);
-                    break;
-                }
+    function remove_order(uuid) {
+        for (let i = 0; i < bid_orders.length; i++) {
+            if (bid_orders[i].uuid === uuid) {
+                bid_orders.splice(i, 1);
+                draw_table(bid_table_body, bid_orders);
+                break;
             }
         }
-    }
-    
-    function cancel_order(data) {
-        if (data.is_bid) {
-            for (let i = 0; i < bid_orders.length; i++) {
-                if (bid_orders[i].uuid == data.uuid) {
-                    bid_orders.splice(i, 1);
-                    break;
-                }
+        for (let i = 0; i < ask_orders.length; i++) {
+            if (ask_orders[i].uuid === uuid) {
+                ask_orders.splice(i, 1);
+                draw_table(ask_table_body, ask_orders);
+                break;
             }
-            draw_table(bid_table, bid_orders);
-        } else {
-            for (let i = 0; i < ask_orders.length; i++) {
-                if (ask_orders[i].uuid == data.uuid) {
-                    ask_orders.splice(i, 1);
-                    break;
-                }
-            }
-            draw_table(ask_table, ask_orders);
         }
     }
     
@@ -324,16 +507,30 @@
         row.appendChild(quantity);
         
         let action = document.createElement("td");
-        if (data.player_id == my_player_id) {
+        if (data.player_id === my_player_id) {
             let del_link = document.createElement("a");
             del_link.addEventListener('click', function() {
-                liveSend({'type': 'cancel_order', 'data': {'uuid': data.uuid}});
+                liveSend({'type': 'cancel_order', 'payload': {'uuid': data.uuid}});
             });
             del_link.href = "#";
-            del_link.innerHTML = "Cancel";
+            del_link.innerHTML = "<i class=\"bi bi-trash\"></i>";
             action.appendChild(del_link);
+        } else {
+            action.innerHTML = "&nbsp;";
         }
         row.appendChild(action);
+        table.appendChild(row);
+    }
+    function add_history_table_row(table, data) {
+        let row = document.createElement("tr");
+        let price = document.createElement("td");
+        let quantity = document.createElement("td");
+        price.innerHTML = data.price;
+        quantity.innerHTML = data.quantity;
+        
+        row.appendChild(price);
+        row.appendChild(quantity);
+        
         table.appendChild(row);
     }
     
@@ -341,6 +538,13 @@
         table.innerHTML = "";
         for (let i = 0; i < data.length; i++) {
             add_table_row(table, data[i]);
+        }
+    }
+    
+    function draw_history_table(table, data) {
+        table.innerHTML = "";
+        for (let i = 0; i < data.length; i++) {
+            add_history_table_row(table, data[i]);
         }
     }
     
@@ -363,79 +567,169 @@
     
     function ask_placed(data) {
         add_ask_order(ask_orders, data)
-        draw_table(ask_table, ask_orders);
+        draw_table(ask_table_body, ask_orders);
     }
     
     function bid_placed(data) {
         add_bid_order(bid_orders, data)
-        draw_table(bid_table, bid_orders);
+        draw_table(bid_table_body, bid_orders);
     }
     
-    function place_order(type) {
-        let price = order_price.value;
-        let quantity = order_quantity.value
-        let market_quantity = market_order_quantity.value;
+    function place_order(type, quantity, price) {
+        if (quantity === "" || isNaN(quantity)){
+            console.log("quantity is always required")
+            return;
+        }
+        if (quantity <= 0) {
+            console.log("quantity must be positive")
+            return;
+        }
         
-        if (type == "place_bid") {
-            if (price == "" || quantity == "") {
-                console.log("nothing entered")
+        if (type === "place_limit_bid") {
+            if (price === "") {
+                console.log("price is required for limit orders")
                 return;
             }
-            if (price <= 0 || quantity <= 0) {
-                console.log("zero order")
+            if (price <= 0) {
+                console.log("price must be positive")
                 return;
             }
             if (quantity > assets) {
                 console.log("not enough assets")
                 return;
             }
-            if (ask_orders.length > 0 && price >= ask_orders[0].price) {
+            if (ask_orders.length > 0 && price >= parseInt(ask_orders[0].price)) {
                 console.log("price too high")
                 return;
             }
-            liveSend({'type': type, 'data': {'quantity': quantity, 'price': price}});
+            liveSend({'type': 'order', 'payload': {'kind': 'limit', 'side': 'bid', 'quantity': quantity, 'price': price}});
         }
         
-        if (type == "place_ask") {
-            if (price == "" || quantity == "") {
-                console.log("nothing entered")
+        if (type === "place_limit_ask") {
+            if (price === "") {
+                console.log("price is required for limit orders")
                 return;
             }
-            if (price <= 0 || quantity <= 0) {
-                console.log("zero order")
+            if (price <= 0) {
+                console.log("price must be positive")
                 return;
             }
             if (price * quantity > cash) {
                 console.log("not enough cash")
                 return;
             }
-            if (bid_orders.length > 0 && price <= bid_orders[bid_orders.length - 1].price) {
+            if (bid_orders.length > 0 && price <= parseInt(bid_orders[0].price)) {
                 console.log("price too low")
                 return;
             }
-            liveSend({'type': type, 'data': {'quantity': quantity, 'price': price}});
+            liveSend({'type': 'order', 'payload': {'kind': 'limit', 'side': 'ask', 'quantity': quantity, 'price': price}});
         }
         
-        if ((type == "place_market_ask" || type == "place_market_bid") && market_quantity != "") {
-            liveSend({'type': type, 'data': {'quantity': market_quantity}});
+        if (type === "place_market_ask") {
+            if (bid_orders[0].player_id === my_player_id) {
+                console.log("cannot sell to self")
+                return;
+            }
+            if (quantity > assets) {
+                console.log("not enough assets")
+                return;
+            }
+            liveSend({'type': 'order', 'payload': {'kind': 'market', 'side': 'ask', 'quantity': quantity}});
         }
-        order_price.value = "";
-        order_quantity.value = "";
+        
+        if (type === "place_market_bid") {
+            if (ask_orders[0].player_id === my_player_id) {
+                console.log("cannot buy from self")
+                return;
+            }
+            if (quantity * parseInt(ask_orders[0].price) > cash) {
+                console.log("not enough cash")
+                return;
+            }
+            liveSend({'type': 'order', 'payload': {'kind': 'market', 'side': 'bid', 'quantity': quantity}});
+        }
     }
     
-    place_ask.addEventListener('click', function() {
-        place_order('place_ask');
+    // handle placing asks and bids
+    function place_limit_ask_handler() {
+        let price = parseInt(ask_limit_price.value);
+        let quantity = parseInt(ask_limit_quantity.value);
+        place_order('place_limit_ask', quantity, price);
+        ask_table_body.scrollTop = 0;
+        ask_limit_price.value = "";
+        ask_limit_quantity.value = "";
+        ask_limit_quantity.focus();
+    }
+    
+    function place_limit_bid_handler() {
+        let price = parseInt(bid_limit_price.value);
+        let quantity = parseInt(bid_limit_quantity.value);
+        place_order('place_limit_bid', quantity, price);
+        bid_table_body.scrollTop = 0;
+        bid_limit_price.value = "";
+        bid_limit_quantity.value = "";
+        bid_limit_quantity.focus();
+    }
+    
+    function place_market_ask_handler() {
+        let quantity = parseInt(ask_market_quantity.value);
+        place_order('place_market_ask', quantity);
+        bid_table_body.scrollTop = 0;
+        ask_market_quantity.value = "";
+        ask_market_quantity.focus();
+    }
+    
+    function place_market_bid_handler() {
+        let quantity = parseInt(bid_market_quantity.value);
+        place_order('place_market_bid', quantity);
+        ask_table_body.scrollTop = 0;
+        bid_market_quantity.value = "";
+        bid_market_quantity.focus();
+    }
+    
+    // input field enter key events
+    ask_limit_price.addEventListener('keyup', function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            place_limit_ask_handler()
+        }
     });
-    place_bid.addEventListener('click', function() {
-        place_order('place_bid');
+    bid_limit_price.addEventListener('keyup', function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            place_limit_bid_handler()
+        }
+    });
+    
+    ask_market_quantity.addEventListener('keyup', function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            place_market_ask_handler()
+        }
+    });
+    
+    bid_market_quantity.addEventListener('keyup', function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            place_market_bid_handler()
+        }
+    });
+    
+    // button click events
+    place_limit_ask.addEventListener('click', function() {
+        place_limit_ask_handler()
+    });
+    
+    place_limit_bid.addEventListener('click', function() {
+        place_limit_bid_handler()
     });
     
     place_market_ask.addEventListener('click', function() {
-        place_order('place_market_ask');
+        place_market_ask_handler()
     });
     
     place_market_bid.addEventListener('click', function() {
-        place_order('place_market_bid');
+        place_market_bid_handler()
     });
     
     setup()
