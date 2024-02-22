@@ -388,7 +388,7 @@
     let available_assets_field = document.getElementById("id_available_assets");
     let stock_price_field = document.getElementById("id_stock_price");
     
-    let cash, assets, last_price;
+    let cash, assets, last_price, available_assets, available_cash;
     let market_start = js_vars.market_start;
     
     let my_player_id = js_vars.player_id;
@@ -409,8 +409,12 @@
         sale_history = js_vars.sale_history;
         cash = js_vars.cash;
         assets = js_vars.assets;
+        available_assets = js_vars.available_assets;
+        available_cash = js_vars.available_cash;
         last_price = js_vars.last_price;
         stock_price_field.innerHTML = last_price || "";
+        available_cash_field.innerHTML = available_cash;
+        available_assets_field.innerHTML = available_assets;
         price_chart.series[0].setData(js_vars.chart_series);
         draw_table(ask_table_body, ask_orders);
         draw_table(bid_table_body, bid_orders);
@@ -425,7 +429,7 @@
         }
         
         if (data.type === "order_cancelled") {
-            remove_order(data.payload.uuid);
+            remove_order(data.payload.order_data.uuid);
         }
         
         if (data.type === "market_order_filled") {
@@ -443,17 +447,17 @@
             stock_price_field.innerHTML = data.payload.last_price;
             let current_second = Math.floor(Date.now() / 1000) - market_start;
             price_chart.series[0].addPoint([current_second, data.payload.last_price]);
-            update_if_affected(data.payload.affected_players);
         }
+        update_if_affected(data.payload.affected_players);
     }
     
-    function handle_order(data) {
-        if (data.kind === "limit") {
-            if (data.side === "ask") {
-                ask_placed(data)
+    function handle_order(payload) {
+        if (payload.order_data.kind === "limit") {
+            if (payload.order_data.side === "ask") {
+                ask_placed(payload.order_data)
             }
-            if (data.side === "bid") {
-                bid_placed(data)
+            if (payload.order_data.side === "bid") {
+                bid_placed(payload.order_data)
             }
         }
     }
@@ -462,11 +466,12 @@
         if (data.hasOwnProperty(my_player_id)) {
             cash = data[my_player_id].cash;
             assets = data[my_player_id].assets;
+            available_cash = data[my_player_id].available_cash;
+            available_assets = data[my_player_id].available_assets;
             cash_field.innerHTML = cash;
             assets_field.innerHTML = assets;
-            
-            console.log(data[my_player_id].purchase_history_add, typeof(data[my_player_id].purchase_history_add))
-            console.log(data[my_player_id].sale_history_add, typeof(data[my_player_id].sale_history_add))
+            available_cash_field.innerHTML = available_cash;
+            available_assets_field.innerHTML = available_assets;
             
             if (!is_empty(data[my_player_id].purchase_history_add)) {
                 purchase_history.unshift(data[my_player_id].purchase_history_add);
@@ -594,8 +599,8 @@
                 console.log("price must be positive")
                 return;
             }
-            if (quantity > assets) {
-                console.log("not enough assets")
+            if (quantity * price > available_cash) {
+                console.log("not enough cash")
                 return;
             }
             if (ask_orders.length > 0 && price >= parseInt(ask_orders[0].price)) {
@@ -614,7 +619,7 @@
                 console.log("price must be positive")
                 return;
             }
-            if (price * quantity > cash) {
+            if (price * quantity > available_cash) {
                 console.log("not enough cash")
                 return;
             }
@@ -630,7 +635,7 @@
                 console.log("cannot sell to self")
                 return;
             }
-            if (quantity > assets) {
+            if (quantity > available_assets) {
                 console.log("not enough assets")
                 return;
             }
@@ -642,7 +647,7 @@
                 console.log("cannot buy from self")
                 return;
             }
-            if (quantity * parseInt(ask_orders[0].price) > cash) {
+            if (quantity * parseInt(ask_orders[0].price) > available_cash) {
                 console.log("not enough cash")
                 return;
             }

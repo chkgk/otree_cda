@@ -2,9 +2,36 @@
     Übersicht nach Periode {{ player.round_number }} von 10
 {{ endblock }}
 
+{{ block styles }}
+    <style>
+        .otree-body {
+            max-width: 1200px;
+        }
+        .page-header {
+            padding-top: 0;
+        }
+        .otree-title {
+            display: inline-block;
+            float: left;
+        }
+        .otree-timer {
+            display: inline-block;
+            float: right;
+            margin-bottom: 0;
+            margin-top: 20px;
+            padding: 0.5rem;
+            width: 150px;
+            text-align: center;
+        }
+        .otree-timer p {
+            margin: 0;
+        }
+    </style>
+{{ endblock }}
+
 {{ block content }}
     <div class="mb-3">
-        <table class="table">
+        <table class="table table-sm">
             <thead>
                 <tr>
                     <th>Periode</th>
@@ -39,6 +66,7 @@
     </div>
 
     {{ if view.is_debug }}
+        <em>The next button is only shown in debug mode.</em>
         {{ next_button }}
     {{ endif }}
 {{ endblock }}
@@ -99,7 +127,7 @@
         
         series: [
             {
-                data: js_vars.closing_prices
+                data: js_vars.average_prices
             }
         ],
         credits: {
@@ -107,5 +135,12 @@
         }
     });
 
+</script>
+<script>
+    // timer setup
+    let timer_element = document.querySelector(".otree-timer>p");
+    if (timer_element !== null) {
+        timer_element.firstChild.textContent = "Time left:\n"
+    }
 </script>
 {{ endblock }}

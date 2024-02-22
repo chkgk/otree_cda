@@ -1,11 +1,8 @@
 from otree.api import *
 from otree.settings import DEBUG
-from sqlalchemy import Column, DateTime, String
-from sqlalchemy.sql import func
 from uuid import uuid4
 import random
 import time
-import json
 
 doc = """
 Your app description
@@ -36,16 +33,21 @@ class Subsession(BaseSubsession):
 
 
 class Group(BaseGroup):  # market level
-    dividend = models.IntegerField()
-    closing_price = models.IntegerField()
+    dividend = models.CurrencyField()
+    closing_price = models.CurrencyField()
+    average_price = models.CurrencyField()
     starting_timestamp = models.IntegerField()
 
 
 class Player(BasePlayer):
+    cash = models.CurrencyField()
     assets = models.IntegerField()
-    cash = models.IntegerField()
-    dividend_payment = models.IntegerField()
-    next_cash = models.IntegerField()
+    available_cash = models.CurrencyField()
+    available_assets = models.IntegerField()
+
+    dividend_payment = models.CurrencyField()
+    next_cash = models.CurrencyField()
+
 
 def generate_uuid():
     return str(uuid4())
@@ -145,6 +147,8 @@ def creating_session(subsession):
                     player.cash, player.assets = C.CASH_AND_ASSET_ENDOWMENTS["high"]
                 else:
                     player.cash, player.assets = C.CASH_AND_ASSET_ENDOWMENTS["low"]
+                player.available_cash = player.cash
+                player.available_assets = player.assets
 
 def handle_order(player, data):
     if data["kind"] == "limit":
@@ -168,9 +172,29 @@ def handle_limit_order(player, data):
         price=data["price"],
         created=int(time.time()) - player.group.starting_timestamp
     )
-    print(order)
+
+    if data["side"] == "ask":
+        player.available_assets -= data["quantity"]
+    else:  # bid
+        player.available_cash -= data["quantity"] * data["price"]
+
     data.update({"uuid": order.uuid, "player_id": order.player.id_in_group})
-    return {0: {"type": 'order', "payload": data}}
+
+    payload = {
+        "order_data": data,
+        "affected_players": {
+            player.id_in_group: {
+                "cash": player.cash,
+                "assets": player.assets,
+                "available_cash": player.available_cash,
+                "available_assets": player.available_assets,
+                "purchase_history_add": {},
+                "sale_history_add": {}
+            }
+        }
+    }
+
+    return {0: {"type": 'order', "payload": payload}}
 
 
 def handle_market_order(player, data):
@@ -195,7 +219,7 @@ def handle_market_order(player, data):
     orders = sorted(orders, key=lambda x: x.price, reverse=(self_side == "ask"))
     best_order = orders[0]
 
-    # take the minimum of the market order and the limit order
+    # limit the quantity to the best order quantity
     ordered_quantity = int(data["quantity"])
     actual_quantity = min(ordered_quantity, best_order.quantity)
 
@@ -250,13 +274,27 @@ def handle_market_order(player, data):
     # work out new cash and assets
     ask_player.cash += actual_quantity * best_order.price
     ask_player.assets -= actual_quantity
+
     bid_player.cash -= actual_quantity * best_order.price
     bid_player.assets += actual_quantity
+
+    if self_side == "bid":
+        bid_player.available_assets += actual_quantity
+        bid_player.available_cash -= actual_quantity * best_order.price
+        ask_player.available_cash += actual_quantity * best_order.price
+        
+    else:  # ask
+        ask_player.available_assets -= actual_quantity
+        ask_player.available_cash += actual_quantity * best_order.price
+        bid_player.available_assets += actual_quantity
+
 
     affected_players = {
         ask_player.id_in_group: {
             "cash": ask_player.cash,
             "assets": ask_player.assets,
+            "available_cash": ask_player.available_cash,
+            "available_assets": ask_player.available_assets,
             "purchase_history_add": {},
             "sale_history_add": {
                 "price": best_order.price,
@@ -266,6 +304,8 @@ def handle_market_order(player, data):
         bid_player.id_in_group: {
             "cash": bid_player.cash,
             "assets": bid_player.assets,
+            "available_cash": bid_player.available_cash,
+            "available_assets": bid_player.available_assets,
             "purchase_history_add": {
                 "price": best_order.price,
                 "quantity": actual_quantity
@@ -289,7 +329,27 @@ def cancel_order(player, data):
     orders = Order.filter(player=player, round=player.round_number, uuid=data["uuid"], deleted=False)
     for order in orders:
         order.deleted = True
-        return {0: {"type": "order_cancelled", "payload": data}}
+
+        if order.side == "ask":
+            player.available_assets += order.quantity
+        else:  # bid
+            player.available_cash += order.quantity * order.price
+
+        payload = {
+            "order_data": data,
+            "affected_players": {
+                player.id_in_group: {
+                    "cash": player.cash,
+                    "assets": player.assets,
+                    "available_cash": player.available_cash,
+                    "available_assets": player.available_assets,
+                    "purchase_history_add": {},
+                    "sale_history_add": {}
+                }
+            }
+        }
+
+        return {0: {"type": "order_cancelled", "payload": payload}}
     else:
         return {0: {"type": "order_cancel_failed", "payload": data}}
 
@@ -312,6 +372,8 @@ class TradingWaitPage(WaitPage):
             prev_player = player.in_round(group.round_number - 1)
             player.cash = prev_player.next_cash
             player.assets = prev_player.assets
+            player.available_cash = player.cash
+            player.available_assets = player.assets
 
 class Trading(Page):
     # timeout_seconds = C.TRADING_SECONDS
@@ -351,25 +413,29 @@ class Trading(Page):
             "sale_history": sale_history,
             "cash": player.cash,
             "assets": player.assets,
+            "available_cash": player.available_cash,
+            "available_assets": player.available_assets,
             "last_price": trades[-1].price if trades else None,
             "chart_series": chart_series,
             "market_start": player.group.starting_timestamp
         }
 
     def before_next_page(player, timeout_happened):
-        # ToDo: actually implement last trade price
-        last_trade_price = random.randint(20, 100)
-        print("last trade price not implemented")
-
-        if player.group.field_maybe_none('closing_price') is None:
-            player.group.closing_price = last_trade_price
+        if player.group.field_maybe_none('average_price') is None:
+            trades = Trade.filter(group=player.group, round=player.round_number)
+            if trades:
+                player.group.average_price = sum([t.price for t in trades]) / len(trades)
+                player.group.closing_price = trades[-1].price
+            else:
+                player.group.average_price = 0
+                player.group.closing_price = 0
 
         player.dividend_payment = player.assets * player.group.dividend
         player.next_cash = player.cash + player.dividend_payment
 
 
 class TradingSummary(Page):
-    # timeout_seconds = C.TRADING_SUMMARY_SECONDS
+    timeout_seconds = C.TRADING_SUMMARY_SECONDS
 
     def vars_for_template(player):
         history = []
@@ -381,6 +447,7 @@ class TradingSummary(Page):
                     "cash": p.cash,
                     "assets": p.assets,
                     "closing_price": g.closing_price,
+                    "average_price": g.average_price,
                     "dividend": g.dividend,
                     "dividend_sum": p.dividend_payment,
                     "total": p.cash + p.dividend_payment
@@ -390,27 +457,12 @@ class TradingSummary(Page):
         }
 
     def js_vars(player):
-        closing_prices = list()
+        average_prices = list()
         for g in player.group.in_all_rounds():
-            closing_prices.append([g.round_number, g.closing_price])
-
-        # ToDo: Remove demo data
-        if closing_prices:
-            closing_prices = [
-                [1, 10],
-                [2, 20],
-                [3, 22],
-                [4, 20],
-                [5, 30],
-                [6, 40],
-                [7, 30],
-                [8, 25],
-                [9, 10],
-                [10, 5]
-            ]
+            average_prices.append([g.round_number, g.average_price])
 
         return {
-            "closing_prices": closing_prices
+            "average_prices": average_prices
         }
 
 
