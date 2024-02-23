@@ -20,7 +20,7 @@ SESSION_CONFIGS = [
         endowment_low_cash=(1000, 60),
         num_rounds=1,
         repetition=1,
-        practice=True
+        practice=True  # ToDo: implement this
     ),
     dict(
         name='stroop',

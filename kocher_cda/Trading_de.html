@@ -1,0 +1,163 @@
+{{ block title }}
+    Handelsperiode {{ player.round_number }} von {{ max_rounds }}
+{{ endblock }}
+
+{{ block styles}}
+    <link rel="stylesheet" href="{{ static 'bootstrap-icons/font/bootstrap-icons.min.css' }}">
+    <link rel="stylesheet" href="{{ static 'trading/trading_screen.css' }}">
+    <link rel="stylesheet" href="{{ static 'trading/trading_chart.css' }}">
+    <link rel="stylesheet" href="{{ static 'trading/trading_tables.css' }}">
+{{ endblock }}
+
+{{ block content }}
+    <div class="row mb-3">
+        <div class="col-4">
+            <h3>Portfolio</h3>
+            <p>
+                Aktien: <span id="id_assets">{{ player.assets }}</span><br>
+                Geld: <span id="id_cash">{{ player.cash }}</span>   
+            </p>
+            <p>
+                Verfügbare Aktien: <span id="id_available_assets"></span><br>
+                Verfügbares Geld: <span id="id_available_cash"></span>
+            </p>
+        </div>
+        <div class="col-4">
+            <h3>Ihre Verkäufe</h3>
+            <table class="table table-sm history c2" id="id_sales_history_table">
+                <thead>
+                    <tr>
+                        <th class="col-6">Preis</th>
+                        <th class="col-6">Anzahl</th>
+                    </tr>
+                </thead>
+                <tbody id="id_sales_history">
+
+                </tbody>
+            </table>
+        </div>
+        <div class="col-4">
+            <h3>Ihre Käufe</h3>
+            <table class="table table-sm history c2" id="id_purchase_history_table">
+                <thead>
+                    <tr>
+                        <th class="col-6">Preis</th>
+                        <th class="col-6">Anzahl</th>
+                    </tr>
+                </thead>
+                <tbody id="id_purchase_history">
+
+                </tbody>
+            </table>            
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">
+            <h3>Chart</h3>
+            <p>
+                <b>Letzter Kurs: <span id="id_stock_price"></span></b>
+            </p>
+            <figure class="highcharts-figure">
+                <div id="container"></div>
+            </figure>
+        </div>
+        <div class="col-8">
+            <div class="row mb-3">
+                <div class="col-6">
+                    <h3>Verkaufsangebote</h3>
+                    <table class="table table-sm order-book c3" id="id_ask_orders_table">
+                        <thead>
+                            <tr>
+                                <th>Preis</th>
+                                <th>Anzahl</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody id="id_ask_orders">
+        
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-6">
+                    <h3>Kaufangebote</h3>
+                    <table class="table table-sm order-book c3" id="id_bid_orders_table">
+                        <thead>
+                            <tr>
+                                <th>Preis</th>
+                                <th>Anzahl</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody id="id_bid_orders">
+        
+                        </tbody>
+                    </table>
+                </div>    
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-6">
+                    <h3>Kaufen</h3>
+                    <div class="input-group">
+                        <span class="input-group-text">A:</span>
+                        <input type="number" inputmode="numeric" min="1" step="1" name="bid_market_quantity" id="id_bid_market_quantity" placeholder="Anzahl" class="form-control"  aria-describedby="id_place_market_bid">
+                        <button type="button" id="id_place_market_bid" class="btn btn-outline-primary">kaufen</button>
+                    </div>
+
+                </div>
+                <div class="col-6">
+                    <h3>Verkaufen</h3>
+                    <div class="input-group">
+                        <span class="input-group-text">A:</span>
+                        <input type="number" inputmode="numeric" min="1" step="1" name="ask_market_quantity" id="id_ask_market_quantity" placeholder="Anzahl" class="form-control" aria-describedby="id_place_market_ask">
+                        <button type="button" id="id_place_market_ask" class="btn btn-outline-primary">verkaufen</button>
+                    </div>
+                    
+                </div>    
+            </div>
+            
+            <div class="row">
+                <div class="col-6">
+                    <h3>Verkaufsangebot abgeben</h3>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">A:</span>
+                        <input type="number" inputmode="numeric" min="1" step="1" name="ask_limit_quantity" id="id_ask_limit_quantity" placeholder="Anzahl" class="form-control">
+                        <span class="input-group-text">P:</span>
+                        <input type="number" inputmode="numeric" min="1" step="1" name="ask_limit_price" id="id_ask_limit_price" placeholder="Preis" class="form-control">
+                        <button type="button" id="id_place_limit_ask" class="btn btn-outline-primary">erstellen</button>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <h3>Kaufangebot erstellen</h3>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">A:</span>
+                        <input type="number" inputmode="numeric" min="1" step="1" name="bid_limit_quantity" id="id_bid_limit_quantity" placeholder="Anzahl" class="form-control">
+                        <span class="input-group-text">P:</span>
+                        <input type="number" inputmode="numeric" min="1" step="1" name="bid_limit_price" id="id_bid_limit_price" placeholder="Preis" class="form-control">
+                        <button type="button" id="id_place_limit_bid" class="btn btn-outline-primary">erstellen</button>
+                    </div>
+                </div>    
+            </div>
+        </div>
+    </div>
+
+    {{ formfields }}
+    {{ if view.is_debug }}
+        <em>The next button is only shown in debug mode.</em>
+        {{ next_button }}
+    {{ endif }}
+{{ endblock }}
+
+{{ block scripts }}
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/series-label.js"></script>
+    {{ if LANGUAGE_CODE == 'de' }}
+        <script src="{{ static 'trading/trading_chart_de.js' }}"></script>
+        <script src="{{ static 'trading/trading_timer_de.js' }}"></script>
+    {{ else }}
+        <script src="{{ static 'trading/trading_chart_en.js' }}"></script>
+        <script src="{{ static 'trading/trading_timer_en.js' }}"></script>
+    {{ endif }}
+    <script src="{{ static 'trading/trading_logic.js' }}"></script>
+{{ endblock }}

@@ -37,12 +37,6 @@ let market_start = js_vars.market_start;
 
 let my_player_id = js_vars.player_id;
 
-// timer setup
-let timer_element = document.querySelector(".otree-timer>p");
-if (timer_element !== null) {
-    timer_element.firstChild.textContent = "Time left:\n"
-}
-
 function is_empty(obj) {
     return Object.keys(obj).length === 0;
 }

@@ -1,0 +1,61 @@
+{{ block title }}
+    Übersicht nach Periode {{ player.round_number }} von {{ max_rounds }}
+{{ endblock }}
+
+{{ block styles }}
+    <link rel="stylesheet" href="{{ static 'trading/trading_screen.css' }}">
+{{ endblock }}
+
+{{ block content }}
+    <div class="mb-3">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Periode</th>
+                    <th>Aktien</th>
+                    <th>Punkte</th>
+                    <th>Schlusskurs</th>
+                    <th>Dividende</th>
+                    <th>Summe Dividenden</th>
+                    <th>Gesamtpunkte</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ for h in history }}
+                    <tr>
+                        <td>{{ h.round }}</td>
+                        <td>{{ h.assets }}</td>
+                        <td>{{ h.cash }}</td>
+                        <td>{{ h.closing_price }}</td>
+                        <td>{{ h.dividend }}</td>
+                        <td>{{ h.dividend_sum }}</td>
+                        <td>{{ h.total }}</td>
+                    </tr>
+                {{ endfor }}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mb-3">
+        <figure class="highcharts-figure">
+            <div id="container"></div>
+        </figure>
+    </div>
+
+    {{ if view.is_debug }}
+        <em>The next button is only shown in debug mode.</em>
+        {{ next_button }}
+    {{ endif }}
+{{ endblock }}
+
+{{ block scripts }}
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/series-label.js"></script>
+    {{ if LANGUAGE_CODE == 'de' }}
+        <script src="{{ static 'trading/trading_summary_chart_de.js' }}"></script>
+        <script src="{{ static 'trading/trading_timer_de.js' }}"></script>
+    {{ else }}
+        <script src="{{ static 'trading/trading_summary_chart_en.js' }}"></script>
+        <script src="{{ static 'trading/trading_timer_en.js' }}"></script>
+    {{ endif }}
+{{ endblock }}

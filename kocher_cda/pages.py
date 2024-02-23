@@ -1,5 +1,5 @@
 from otree.api import *
-
+from otree import settings
 from kocher_cda.models import *
 from kocher_cda.functions import handle_order, cancel_order
 import time
@@ -25,7 +25,8 @@ class BaseTradingWaitPage(WaitPage):
 
 
 class BaseTradingPage(Page):
-    template_name = "kocher_cda/Trading.html"
+    def get_template_name(self):
+        return f"kocher_cda/Trading_{settings.LANGUAGE_CODE}.html"
 
     def get_timeout_seconds(player):
         return player.session.config["trading_seconds"]
@@ -83,6 +84,7 @@ class BaseTradingPage(Page):
     def vars_for_template(player):
         return {
             "max_rounds": player.session.config["num_rounds"],
+            "LANGUAGE_CODE": settings.LANGUAGE_CODE
         }
 
     def before_next_page(player, timeout_happened):
@@ -100,7 +102,8 @@ class BaseTradingPage(Page):
 
 
 class BaseTradingSummaryPage(Page):
-    template_name = "kocher_cda/TradingSummary.html"
+    def get_template_name(self):
+        return f"kocher_cda/TradingSummary_{settings.LANGUAGE_CODE}.html"
 
     def is_displayed(player):
         return player.round_number <= player.session.config["num_rounds"]
@@ -125,7 +128,8 @@ class BaseTradingSummaryPage(Page):
                 })
         return {
             "history": history,
-            "max_rounds": player.session.config["num_rounds"]
+            "max_rounds": player.session.config["num_rounds"],
+            "LANGUAGE_CODE": settings.LANGUAGE_CODE
         }
 
     def js_vars(player):

@@ -147,12 +147,17 @@
         <em>The next button is only shown in debug mode.</em>
         {{ next_button }}
     {{ endif }}
-
 {{ endblock }}
 
 {{ block scripts }}
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/modules/series-label.js"></script>
-    <script src="{{ static 'trading/trading_chart.js' }}"></script>
+    {{ if LANGUAGE_CODE == 'de' }}
+        <script src="{{ static 'trading/trading_chart_de.js' }}"></script>
+        <script src="{{ static 'trading/trading_timer_de.js' }}"></script>
+    {{ else }}
+        <script src="{{ static 'trading/trading_chart_en.js' }}"></script>
+        <script src="{{ static 'trading/trading_timer_en.js' }}"></script>
+    {{ endif }}
     <script src="{{ static 'trading/trading_logic.js' }}"></script>
 {{ endblock }}
