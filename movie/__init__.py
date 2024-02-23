@@ -121,6 +121,10 @@ def creating_session(subsession: Subsession):
 
 
 # PAGES
+class Part1Announcement(TranslatedPage):
+    pass
+
+
 class Instructions(TranslatedPage):
     pass
 
@@ -153,6 +157,7 @@ class Part2Announcement(TranslatedPage):
 
 
 page_sequence = [
+    Part1Announcement,
     Instructions,
     Movie,
     Evaluation,

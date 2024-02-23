@@ -219,6 +219,10 @@ def calculate_payoff(player: Player, lottery):
 
 
 # PAGES
+class Part1Announcement(TranslatedPage):
+    pass
+
+
 class PreTaskQuestions(TranslatedPage):
     form_model = 'player'
     form_fields = ['mother_tongue_german', 'vision_impairment', 'vision_impairment_color']
@@ -301,6 +305,7 @@ class Part2Announcement(TranslatedPage):
 
 
 page_sequence = [
+    Part1Announcement,
     PreTaskQuestions,
     Task,
     PostTaskQuestions,

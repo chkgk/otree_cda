@@ -2,12 +2,6 @@ from os import environ
 
 SESSION_CONFIGS = [
     dict(
-        name="export_test",
-        display_name="Export Test",
-        app_sequence=["export_test"],
-        num_demo_participants=4,
-    ),
-    dict(
         name="intro",
         display_name="Introduction",
         app_sequence=["intro"],
@@ -16,8 +10,17 @@ SESSION_CONFIGS = [
     dict(
         name="cda_practice",
         display_name="Asset Market Practice Period",
-        app_sequence=["cda_practice"],
+        app_sequence=['cda_practice'],
         num_demo_participants=4,
+        trading_seconds=120,
+        trading_summary_seconds=30,
+        dividend_high=10,
+        dividend_low=2,
+        endowment_high_cash=(3000, 20),
+        endowment_low_cash=(1000, 60),
+        num_rounds=1,
+        repetition=1,
+        practice=True
     ),
     dict(
         name='stroop',
@@ -32,9 +35,9 @@ SESSION_CONFIGS = [
         num_demo_participants=4,
     ),
     dict(
-        name='kocher_cda',
-        display_name="2 Asset Market 1",
-        app_sequence=['kocher_cda'],
+        name='cda_rep1',
+        display_name="2 Asset Market - Repetition 1",
+        app_sequence=['cda_rep1'],
         num_demo_participants=4,
         trading_seconds=120,
         trading_summary_seconds=30,
@@ -43,7 +46,37 @@ SESSION_CONFIGS = [
         endowment_high_cash=(3000, 20),
         endowment_low_cash=(1000, 60),
         num_rounds=10,
+        repetition=1,
+        practice=False
     ),
+    dict(
+        name='cda_rep2',
+        display_name="2 Asset Market - Repetition 2",
+        app_sequence=['cda_rep2'],
+        num_demo_participants=4,
+        trading_seconds=120,
+        trading_summary_seconds=30,
+        dividend_high=10,
+        dividend_low=2,
+        endowment_high_cash=(3000, 20),
+        endowment_low_cash=(1000, 60),
+        num_rounds=10,
+        repetition=2,
+        practice=False
+    ),
+    # dict(
+    #     name='kocher_cda',
+    #     display_name="2 Asset Market 1",
+    #     app_sequence=['kocher_cda'],
+    #     num_demo_participants=4,
+    #     trading_seconds=120,
+    #     trading_summary_seconds=30,
+    #     dividend_high=10,
+    #     dividend_low=2,
+    #     endowment_high_cash=(3000, 20),
+    #     endowment_low_cash=(1000, 60),
+    #     num_rounds=10,
+    # ),
     dict(
         name="crt7",
         display_name="3.1 Cognitive Reflection Test",

@@ -1,11 +1,12 @@
 {{ block title }}
-    Trading Period {{ player.round_number }} of {{ C.NUM_ROUNDS }}
+    Trading Period {{ player.round_number }} of {{ max_rounds }}
 {{ endblock }}
 
 {{ block styles}}
     <link rel="stylesheet" href="{{ static 'bootstrap-icons/font/bootstrap-icons.min.css' }}">
     <link rel="stylesheet" href="{{ static 'trading/trading_screen.css' }}">
     <link rel="stylesheet" href="{{ static 'trading/trading_chart.css' }}">
+    <link rel="stylesheet" href="{{ static 'trading/trading_tables.css' }}">
 {{ endblock }}
 
 {{ block content }}

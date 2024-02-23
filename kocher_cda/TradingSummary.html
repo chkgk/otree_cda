@@ -1,32 +1,9 @@
 {{ block title }}
-    Übersicht nach Periode {{ player.round_number }} von 10
+    Übersicht nach Periode {{ player.round_number }} von {{ max_rounds }}
 {{ endblock }}
 
 {{ block styles }}
-    <style>
-        .otree-body {
-            max-width: 1200px;
-        }
-        .page-header {
-            padding-top: 0;
-        }
-        .otree-title {
-            display: inline-block;
-            float: left;
-        }
-        .otree-timer {
-            display: inline-block;
-            float: right;
-            margin-bottom: 0;
-            margin-top: 20px;
-            padding: 0.5rem;
-            width: 150px;
-            text-align: center;
-        }
-        .otree-timer p {
-            margin: 0;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ static 'trading/trading_screen.css' }}">
 {{ endblock }}
 
 {{ block content }}
@@ -141,6 +118,6 @@
     let timer_element = document.querySelector(".otree-timer>p");
     if (timer_element !== null) {
         timer_element.firstChild.textContent = "Time left:\n"
-    
+    }
 </script>
 {{ endblock }}

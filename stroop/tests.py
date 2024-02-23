@@ -25,6 +25,7 @@ def call_live_method(method, **kwargs):
 
 class PlayerBot(Bot):
     def play_round(self):
+        yield Part1Announcement
         yield PreTaskQuestions, {
             'mother_tongue_german': random.choice([True, False]),
             'vision_impairment': random.randint(0, 3),
