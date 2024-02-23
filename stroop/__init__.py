@@ -296,10 +296,15 @@ class HL(TranslatedPage):
         calculate_payoff(player, C.HL_LOTTERY)
 
 
+class Part2Announcement(TranslatedPage):
+    pass
+
+
 page_sequence = [
     PreTaskQuestions,
     Task,
     PostTaskQuestions,
     CRT3,
-    HL
+    HL,
+    Part2Announcement
 ]

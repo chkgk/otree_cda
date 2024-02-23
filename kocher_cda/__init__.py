@@ -1,8 +1,9 @@
 from otree.api import *
 from otree.settings import DEBUG
 from uuid import uuid4
-import random
 import time
+
+from .market_functions import create_market_session, handle_order
 
 doc = """
 Your app description
@@ -13,19 +14,6 @@ class C(BaseConstants):
     NAME_IN_URL = 'kocher_cda'
     PLAYERS_PER_GROUP = None
     NUM_ROUNDS = 10
-
-    DIVIDEND = {
-        "high": 10,
-        "low": 0
-    }
-
-    TRADING_SECONDS = 120
-    TRADING_SUMMARY_SECONDS = 30
-
-    CASH_AND_ASSET_ENDOWMENTS = {
-        "high": (3000, 20),
-        "low": (1000, 60)
-    }
 
 
 class Subsession(BaseSubsession):
@@ -49,10 +37,6 @@ class Player(BasePlayer):
     next_cash = models.CurrencyField()
 
 
-def generate_uuid():
-    return str(uuid4())
-
-
 class Order(ExtraModel):
     uuid = models.StringField()
     group = models.Link(Group)
@@ -67,22 +51,6 @@ class Order(ExtraModel):
     deleted = models.BooleanField(default=False)
     created = models.IntegerField()
 
-    def as_dict(self):
-        return dict(
-            uuid=self.uuid,
-            group_id=self.group.id_in_subsession,
-            round=self.round,
-            player_id=self.player.id_in_group,
-            kind=self.kind,
-            side=self.side,
-            quantity=self.quantity,
-            price=self.price,
-            filled=self.filled,
-            replaced_by=self.replaced_by,
-            deleted=self.deleted,
-            created=self.created
-        )
-
 
 class Trade(ExtraModel):
     group = models.Link(Group)
@@ -95,60 +63,9 @@ class Trade(ExtraModel):
 
 
 # FUNCTIONS
-def vars_for_admin_report(subsession):
-    import json
-    return {
-        "orders": json.dumps([order.as_dict() for order in Order.filter()])
-    }
-
 def creating_session(subsession):
-    num_traders = len(subsession.get_players())
-    if DEBUG:
-        traders_per_market = int(num_traders / 2)
-        num_markets = 2
-    else:
-        if num_traders % 16 != 0 and num_traders % 20 != 0:
-            raise Exception("Need a multiple of 16 or 20 traders")
+    create_market_session(subsession)
 
-        traders_per_market = 10 if num_traders % 20 == 0 else 8
-        num_markets = int(num_traders / traders_per_market)
-
-    # set group matrix
-    if subsession.round_number == 1:
-        group_matrix = []
-        for market in range(num_markets):
-            group_matrix.append([market * traders_per_market + i + 1 for i in range(traders_per_market)])
-
-        subsession.set_group_matrix(group_matrix) 
-    else:
-        subsession.group_like_round(1)
-
-    # prepare dividend sequence dict
-    if subsession.round_number == 1:
-        subsession.session.vars["dividend_sequences"] = dict()
-
-    for group in subsession.get_groups():
-        # set sequence of high and low dividends
-        if subsession.round_number == 1:
-            dividend_sequence = [C.DIVIDEND["high"] for i in range(int(C.NUM_ROUNDS/2))] + [C.DIVIDEND["low"] for i in range(int(C.NUM_ROUNDS/2))]
-            random.shuffle(dividend_sequence)
-            subsession.session.vars["dividend_sequences"][group.id_in_subsession] = dividend_sequence
-        else:
-            dividend_sequence = subsession.session.vars.get("dividend_sequences")[group.id_in_subsession]
-
-        # set dividend
-        group.dividend = dividend_sequence[subsession.round_number - 1]
-
-        # set cash and assets
-        for player in group.get_players():
-            # first round endowments
-            if subsession.round_number == 1:
-                if player.id_in_group <= traders_per_market / 2:
-                    player.cash, player.assets = C.CASH_AND_ASSET_ENDOWMENTS["high"]
-                else:
-                    player.cash, player.assets = C.CASH_AND_ASSET_ENDOWMENTS["low"]
-                player.available_cash = player.cash
-                player.available_assets = player.assets
 
 def handle_order(player, data):
     if data["kind"] == "limit":
@@ -264,7 +181,7 @@ def handle_market_order(player, data):
             price=best_order.price,
             created=int(time.time()) - player.group.starting_timestamp
         )
-        to_add = replacement_order.as_dict()
+        to_add = {'player_id': replacement_order.player.id_in_group, 'uuid': replacement_order.uuid, 'side': replacement_order.side, 'price': replacement_order.price, 'quantity': replacement_order.quantity, "kind": replacement_order.kind, "created": replacement_order.created}
         best_order.replaced_by = replacement_order.uuid
 
     # get player objects
@@ -282,7 +199,7 @@ def handle_market_order(player, data):
         bid_player.available_assets += actual_quantity
         bid_player.available_cash -= actual_quantity * best_order.price
         ask_player.available_cash += actual_quantity * best_order.price
-        
+
     else:  # ask
         ask_player.available_assets -= actual_quantity
         ask_player.available_cash += actual_quantity * best_order.price
@@ -355,11 +272,6 @@ def cancel_order(player, data):
 
 
 # PAGES
-class Part2Announcement(Page):
-    def is_displayed(player):
-        return player.round_number == 1
-
-
 class TradingWaitPage(WaitPage):
     # wait_for_all_groups = True
 
@@ -375,10 +287,11 @@ class TradingWaitPage(WaitPage):
             player.available_cash = player.cash
             player.available_assets = player.assets
 
+
 class Trading(Page):
-    # timeout_seconds = C.TRADING_SECONDS
-    # timeout_seconds = 120
-    
+    def get_timeout_seconds(player):
+        return player.session.config["trading_seconds"]
+
     @staticmethod
     def live_method(player, req):
         print(req)
@@ -387,7 +300,6 @@ class Trading(Page):
 
         if req["type"] == "cancel_order":
             return cancel_order(player, req["payload"])
-
 
     @staticmethod
     def js_vars(player):
@@ -435,7 +347,8 @@ class Trading(Page):
 
 
 class TradingSummary(Page):
-    timeout_seconds = C.TRADING_SUMMARY_SECONDS
+    def get_timeout_seconds(player):
+        return player.session.config["trading_summary_seconds"]
 
     def vars_for_template(player):
         history = []
@@ -466,4 +379,4 @@ class TradingSummary(Page):
         }
 
 
-page_sequence = [Part2Announcement, TradingWaitPage, Trading, TradingSummary]
+page_sequence = [TradingWaitPage, Trading, TradingSummary]

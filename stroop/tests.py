@@ -50,3 +50,4 @@ class PlayerBot(Bot):
         yield Submission(HL, {
             f"hl_a_{i}": random.choice([True, False]) for i in range(1, 11)
         }, check_html=False)
+        yield Part2Announcement

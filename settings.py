@@ -36,6 +36,13 @@ SESSION_CONFIGS = [
         display_name="2 Asset Market 1",
         app_sequence=['kocher_cda'],
         num_demo_participants=4,
+        trading_seconds=120,
+        trading_summary_seconds=30,
+        dividend_high=10,
+        dividend_low=2,
+        endowment_high_cash=(3000, 20),
+        endowment_low_cash=(1000, 60),
+        num_rounds=10,
     ),
     dict(
         name="crt7",

@@ -19,3 +19,4 @@ class PlayerBot(Bot):
 
         # yield the page
         yield Evaluation, eval_context
+        yield Part2Announcement

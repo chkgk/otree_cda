@@ -148,8 +148,13 @@ class Evaluation(TranslatedPage):
             return _("Please fill in the intensity of the selected feeling. 2")
 
 
+class Part2Announcement(TranslatedPage):
+    pass
+
+
 page_sequence = [
     Instructions,
     Movie,
     Evaluation,
+    Part2Announcement
 ]

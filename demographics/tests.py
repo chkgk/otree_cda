@@ -11,7 +11,7 @@ class PlayerBot(Bot):
             "age": random.randint(18, 110),
             "field_of_studies": random.randint(1, 7),
             "num_semesters": random.randint(0, 20),
-            "math_grade": random.randint(1, 6),
+            "math_grade": random.randint(1, 5),
             "risk_appetite": random.randint(1, 6)
         }
         yield Questionnaire, {
