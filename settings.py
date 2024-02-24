@@ -2,6 +2,12 @@ from os import environ
 
 SESSION_CONFIGS = [
     dict(
+         name="export_test",
+         display_name="Export Test",
+         app_sequence=["export_test"],
+         num_demo_participants=4,
+    ),
+    dict(
         name="intro",
         display_name="Introduction",
         app_sequence=["intro"],
@@ -18,9 +24,6 @@ SESSION_CONFIGS = [
         dividend_low=2,
         endowment_high_cash=(3000, 20),
         endowment_low_cash=(1000, 60),
-        num_rounds=1,
-        repetition=1,
-        practice=True  # ToDo: implement this
     ),
     dict(
         name='stroop',
@@ -45,9 +48,6 @@ SESSION_CONFIGS = [
         dividend_low=2,
         endowment_high_cash=(3000, 20),
         endowment_low_cash=(1000, 60),
-        num_rounds=10,
-        repetition=1,
-        practice=False
     ),
     dict(
         name='cda_rep2',
@@ -60,23 +60,7 @@ SESSION_CONFIGS = [
         dividend_low=2,
         endowment_high_cash=(3000, 20),
         endowment_low_cash=(1000, 60),
-        num_rounds=10,
-        repetition=2,
-        practice=False
     ),
-    # dict(
-    #     name='kocher_cda',
-    #     display_name="2 Asset Market 1",
-    #     app_sequence=['kocher_cda'],
-    #     num_demo_participants=4,
-    #     trading_seconds=120,
-    #     trading_summary_seconds=30,
-    #     dividend_high=10,
-    #     dividend_low=2,
-    #     endowment_high_cash=(3000, 20),
-    #     endowment_low_cash=(1000, 60),
-    #     num_rounds=10,
-    # ),
     dict(
         name="crt7",
         display_name="3.1 Cognitive Reflection Test",
@@ -104,16 +88,28 @@ SESSION_CONFIGS = [
     dict(
         name="complete_stroop",  # needs second round of market
         display_name="Complete Experiment - Stroop",
-        app_sequence=["intro", "cda_practice", "stroop", "kocher_cda", "crt7", "apm", "egt", "demographics"],
+        app_sequence=["intro", "cda_practice", "stroop", "cda_rep1", "cda_rep2", "crt7", "apm", "egt", "demographics"],
         num_demo_participants=4,
-        experiment="stroop"
+        experiment="stroop",
+        trading_seconds=120,
+        trading_summary_seconds=30,
+        dividend_high=10,
+        dividend_low=2,
+        endowment_high_cash=(3000, 20),
+        endowment_low_cash=(1000, 60),
     ),
     dict(
         name="complete_movie",  # needs second round of market
         display_name="Complete Experiment - Movie",
-        app_sequence=["intro", "cda_practice", "movie", "kocher_cda", "crt7", "apm", "egt", "demographics"],
+        app_sequence=["intro", "cda_practice", "movie", "cda_rep1", "cda_rep2", "crt7", "apm", "egt", "demographics"],
         num_demo_participants=4,
-        experiment="movie"
+        experiment="movie",
+        trading_seconds=120,
+        trading_summary_seconds=30,
+        dividend_high=10,
+        dividend_low=2,
+        endowment_high_cash=(3000, 20),
+        endowment_low_cash=(1000, 60),
     )
 ]
 

@@ -4,14 +4,10 @@ from uuid import uuid4
 import random
 import time
 
-from kocher_cda.models import *
+from kocher_cda.ex_models import *
 
 
 def check_market_session_config(config):
-    if not config.get("num_rounds", None):
-        raise Exception("num_rounds not set in session config")
-    if config.get("num_rounds") > 10:
-        raise Exception("num_rounds cannot be greater than 10")
     if not config.get("trading_seconds", None):
         raise Exception("trading_seconds not set in session config")
     if not config.get("trading_summary_seconds", None):
@@ -26,9 +22,13 @@ def check_market_session_config(config):
         raise Exception("endowment_low_cash not set in session config")
 
 
-def create_market_session(subsession):
+def market_create_session(subsession, repetition):
     sc = subsession.session.config
     check_market_session_config(sc)
+
+    subsession.num_rounds = 1 if repetition == 0 else 10
+    subsession.repetition = repetition
+    subsession.practice = repetition == 0
 
     num_traders = len(subsession.get_players())
     if DEBUG:
@@ -55,16 +55,17 @@ def create_market_session(subsession):
     if subsession.round_number == 1:
         subsession.session.vars["dividend_sequences"] = dict()
 
+
     for group in subsession.get_groups():
         # set sequence of high and low dividends
         if subsession.round_number == 1:
-            if sc["num_rounds"] == 1:
+            if subsession.num_rounds == 1:
                 dividend_sequence = [sc["dividend_high"], 0, 0, 0, 0, 0, 0, 0, 0, 0]
             else:
-                if sc["num_rounds"] % 2 != 0:
+                if subsession.num_rounds % 2 != 0:
                     raise Exception("num_rounds must be even")
 
-                dividend_sequence = [sc["dividend_high"] for i in range(int(sc["num_rounds"] / 2))] + [sc["dividend_low"] for i in range(int(sc["num_rounds"] / 2))]
+                dividend_sequence = [sc["dividend_high"] for i in range(int(subsession.num_rounds / 2))] + [sc["dividend_low"] for i in range(int(subsession.num_rounds / 2))]
                 random.shuffle(dividend_sequence)
                 if len(dividend_sequence) < 10:
                     dividend_sequence += [0 for i in range(10 - len(dividend_sequence))]
@@ -98,6 +99,7 @@ def handle_order(player, data):
 def handle_limit_order(player, data):
     order = Order.create(
         uuid=str(uuid4()),
+        repetition=player.subsession.repetition,
         group=player.group,
         round=player.round_number,
         player=player,
@@ -161,6 +163,7 @@ def handle_market_order(player, data):
     # create the market order
     market_order = Order.create(
         uuid=str(uuid4()),
+        repetition=player.subsession.repetition,
         group=player.group,
         round=player.round_number,
         player=player,
@@ -168,11 +171,14 @@ def handle_market_order(player, data):
         side=self_side,
         quantity=actual_quantity,
         price=best_order.price,
+        filled=True,
         created=int(time.time()) - player.group.starting_timestamp
     )
 
     # create the trade
     trade = Trade.create(
+        uuid=str(uuid4()),
+        repetition=player.subsession.repetition,
         group=player.group,
         round=player.round_number,
         ask=market_order if self_side == "ask" else best_order,
@@ -190,6 +196,7 @@ def handle_market_order(player, data):
         remaining_quantity = best_order.quantity - ordered_quantity
         replacement_order = Order.create(
             uuid=str(uuid4()),
+            repetition=player.subsession.repetition,
             group=best_order.group,
             round=best_order.round,
             player=best_order.player,
@@ -197,6 +204,7 @@ def handle_market_order(player, data):
             side=best_order.side,
             quantity=remaining_quantity,
             price=best_order.price,
+            is_replacement=True,
             created=int(time.time()) - player.group.starting_timestamp
         )
         to_add = {'player_id': replacement_order.player.id_in_group, 'uuid': replacement_order.uuid, 'side': replacement_order.side, 'price': replacement_order.price, 'quantity': replacement_order.quantity, "kind": replacement_order.kind, "created": replacement_order.created}
@@ -288,3 +296,23 @@ def cancel_order(player, data):
     else:
         return {0: {"type": "order_cancel_failed", "payload": data}}
 
+
+def market_custom_export(players, repetition):
+    # we generate a long random string to separate the tables add to avoide collisions with data entered by participants
+    random_string = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=10))
+
+    # first row contains the string at which to split tables and the names of the tables in the correct order
+    yield [random_string, f"Trade_{repetition}", f"Order_{repetition}"]
+    # then we yield the table rows for the first table
+
+    yield ['uuid', 'session_code', 'repetition', 'group_id', 'round_number', 'ask_uuid', 'bid_uuid', 'quantity', 'price', 'created']
+    for t in [trade for trade in Trade.filter() if trade.repetition == repetition]:
+        yield t.uuid, t.group.session.code, t.repetition, t.group.id_in_subsession, t.round, t.ask.uuid, t.bid.uuid, t.quantity, t.price, t.created
+
+
+    # to indicate the start of the next table, we yield the string again
+    yield [random_string]
+    # followed by data for the next table
+    yield ['uuid', 'session_code', 'repetition', 'group_id', 'round_number', 'player_id', 'kind', 'side', 'quantity', 'price', 'filled', 'is_replacement', 'replaced_by', 'deleted', 'created']
+    for o in [order for order in Order.filter() if order.repetition == repetition]:
+        yield o.uuid, o.group.session.code, o.repetition, o.group.id_in_subsession, o.round, o.player.id_in_group, o.kind, o.side, o.quantity, o.price, o.filled, o.is_replacement, o.replaced_by, o.deleted, o.created

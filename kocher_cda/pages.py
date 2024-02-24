@@ -1,6 +1,6 @@
 from otree.api import *
 from otree import settings
-from kocher_cda.models import *
+from kocher_cda.ex_models import *
 from kocher_cda.functions import handle_order, cancel_order
 import time
 
@@ -9,9 +9,9 @@ class BaseTradingWaitPage(WaitPage):
     # wait_for_all_groups = True
 
     def is_displayed(player):
-        return player.round_number <= player.session.config["num_rounds"]
+        return player.round_number <= player.subsession.num_rounds
 
-    def after_all_players_arrive(group: Group):
+    def after_all_players_arrive(group):
         group.starting_timestamp = int(time.time())
         if group.round_number == 1:
             return
@@ -32,7 +32,7 @@ class BaseTradingPage(Page):
         return player.session.config["trading_seconds"]
 
     def is_displayed(player):
-        return player.round_number <= player.session.config["num_rounds"]
+        return player.round_number <= player.subsession.num_rounds
 
     @staticmethod
     def live_method(player, req):
@@ -83,22 +83,30 @@ class BaseTradingPage(Page):
 
     def vars_for_template(player):
         return {
-            "max_rounds": player.session.config["num_rounds"],
+            "max_rounds": player.subsession.num_rounds,
             "LANGUAGE_CODE": settings.LANGUAGE_CODE
         }
 
-    def before_next_page(player, timeout_happened):
-            if player.group.field_maybe_none('average_price') is None:
-                trades = Trade.filter(group=player.group, round=player.round_number)
-                if trades:
-                    player.group.average_price = sum([t.price for t in trades]) / len(trades)
-                    player.group.closing_price = trades[-1].price
-                else:
-                    player.group.average_price = 0
-                    player.group.closing_price = 0
-    
+
+class BaseTradingResultsWaitPage(WaitPage):
+    def is_displayed(player):
+        return player.round_number <= player.subsession.num_rounds
+
+    def after_all_players_arrive(group: Group):
+        trades = Trade.filter(group=group, round=group.round_number)
+        if trades:
+            group.average_price = sum([t.price for t in trades]) / len(trades)
+            group.closing_price = trades[-1].price
+        else:
+            group.average_price = 0
+            group.closing_price = 0
+
+        for player in group.get_players():
             player.dividend_payment = player.assets * player.group.dividend
             player.next_cash = player.cash + player.dividend_payment
+
+            if player.round_number == player.subsession.num_rounds and player.session.vars["pay_repetition"] == player.subsession.repetition:
+                player.payoff = player.next_cash
 
 
 class BaseTradingSummaryPage(Page):
@@ -106,7 +114,7 @@ class BaseTradingSummaryPage(Page):
         return f"kocher_cda/TradingSummary_{settings.LANGUAGE_CODE}.html"
 
     def is_displayed(player):
-        return player.round_number <= player.session.config["num_rounds"]
+        return player.round_number <= player.subsession.num_rounds
 
     def get_timeout_seconds(player):
         return player.session.config["trading_summary_seconds"]
@@ -124,11 +132,11 @@ class BaseTradingSummaryPage(Page):
                     "average_price": g.average_price,
                     "dividend": g.dividend,
                     "dividend_sum": p.dividend_payment,
-                    "total": p.cash + p.dividend_payment
+                    "total": p.next_cash
                 })
         return {
             "history": history,
-            "max_rounds": player.session.config["num_rounds"],
+            "max_rounds": player.subsession.num_rounds,
             "LANGUAGE_CODE": settings.LANGUAGE_CODE
         }
 

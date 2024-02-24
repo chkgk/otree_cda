@@ -108,6 +108,9 @@ def creating_session(subsession: Subsession):
 
     # first half of players forms a group, second half forms another group
     subsession.set_group_matrix([[i + 1 for i in range(players_per_group)], [i + 1 for i in range(players_per_group, players_per_group * 2)]])
+    
+    # select a repetition to pay
+    subsession.session.vars['pay_repetition'] = random.randint(1, 2)
 
     # assign condition to players
     # store participant variables

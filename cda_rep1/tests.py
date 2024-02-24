@@ -1,5 +1,5 @@
 from otree.api import Currency as c, currency_range, expect, Bot
-from . import *
+from .pages import Trading, TradingSummary
 
 
 class PlayerBot(Bot):
