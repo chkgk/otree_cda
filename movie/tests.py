@@ -19,5 +19,11 @@ class PlayerBot(Bot):
             eval_context['movie_intensity_excitement'] = random.randint(1, 9)
 
         # yield the page
-        yield Evaluation, eval_context
+        if self.player.clip == 'intense':
+            yield EvaluationIntense, eval_context
+        else:
+            yield EvaluationCalm, {
+                'movie_pleasant': random.choice([True, False]),
+                'movie_calm_to_excited': random.randint(1, 9),
+            }
         yield Part2Announcement

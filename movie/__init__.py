@@ -26,7 +26,13 @@ def _(s):
         "Yes": "Ja",
         "No": "Nein",
         "Intensity (1 = very little; 9 = very much)": "Intensität (1 = sehr gering; 9 = sehr hoch)",
-        "Please fill in the intensity of the selected feeling.": "Bitte füllen Sie die Intensität des ausgewählten Gefühls aus."
+        "Please fill in the intensity of the selected feeling.": "Bitte füllen Sie die Intensität des ausgewählten Gefühls aus.",
+        "Please indicate if the video you’ve just watched was either pleasant or unpleasant—only one option allowed.": "Bitte geben Sie an, ob das Video, das Sie gerade gesehen haben, angenehm oder unangenehm war — nur eine Option erlaubt.",
+        "pleasant": "angenehm",
+        "unpleasant": "unangenehm",
+        "How did this movie clip make you feel?": "Wie fühlen Sie sich nach diesem Clip?",
+        "1 - very calm/relaxed": "1 - sehr ruhig/entspannt",
+        "9 - very active/excited": "9 - sehr aktiv/aufgeregt",
     }
     if LANGUAGE_CODE in LANGUAGE_MAP.keys():
         return LANGUAGE_MAP[LANGUAGE_CODE][s]
@@ -79,11 +85,26 @@ class Group(BaseGroup):
 class Player(BasePlayer):
     condition = models.StringField()
     clip = models.StringField(choioes=C.CLIP_NAMES)
+
+    # intense questions
     movie_feeling = models.IntegerField(choices=[(1, _("Anxiety / Fear / Nervousness")), (2, _("Excitement / Pleasure / Enthusiasm"))], widget=widgets.RadioSelect)
     movie_filler_task = models.BooleanField(choices=[(True, _("Yes")), (False, _("No"))], widget=widgets.RadioSelect, label=_("Do you think this clip is a nice filler task to be used in future experiments?"))
     movie_intensity_anxiety = models.IntegerField(min=1, max=9, label=_("Intensity (1 = very little; 9 = very much)"), blank=True)
     movie_intensity_excitement = models.IntegerField(min=1, max=9, label=_("Intensity (1 = very little; 9 = very much)"), blank=True)
 
+    # calm questions
+    movie_pleasant = models.BooleanField(choices=[(True, _("pleasant")), (False, _("unpleasant"))], widget=widgets.RadioSelect, label=_("Please indicate if the video you’ve just watched was either pleasant or unpleasant—only one option allowed."))
+    movie_calm_to_excited = models.IntegerField(label=_("How did this movie clip make you feel?"), widget=widgets.RadioSelect, choices=[
+        (1, _('1 - very calm/relaxed')),
+        (2, "2"),
+        (3, "3"),
+        (4, "4"),
+        (5, "5"),
+        (6, "6"),
+        (7, "7"),
+        (8, "8"),
+        (9, _('9 - very active/excited'))
+    ])
 
 # FUNCTIONS
 
@@ -108,7 +129,7 @@ def creating_session(subsession: Subsession):
 
     # first half of players forms a group, second half forms another group
     subsession.set_group_matrix([[i + 1 for i in range(players_per_group)], [i + 1 for i in range(players_per_group, players_per_group * 2)]])
-    
+
     # select a repetition to pay
     subsession.session.vars['pay_repetition'] = random.randint(1, 2)
 
@@ -142,9 +163,13 @@ class Movie(TranslatedPage):
         return context
 
 
-class Evaluation(TranslatedPage):
+class EvaluationIntense(TranslatedPage):
     form_model = 'player'
     form_fields = ['movie_feeling', 'movie_filler_task', 'movie_intensity_anxiety', 'movie_intensity_excitement']
+
+    @staticmethod
+    def is_displayed(player):
+        return player.clip == 'intense'
 
     @staticmethod
     def error_message(player, values):
@@ -155,6 +180,15 @@ class Evaluation(TranslatedPage):
             return _("Please fill in the intensity of the selected feeling. 2")
 
 
+class EvaluationCalm(TranslatedPage):
+    form_model = 'player'
+    form_fields = ["movie_pleasant", "movie_calm_to_excited"]
+
+    @staticmethod
+    def is_displayed(player):
+        return player.clip == 'calm'
+
+
 class Part2Announcement(TranslatedPage):
     pass
 
@@ -163,6 +197,7 @@ page_sequence = [
     Part1Announcement,
     Instructions,
     Movie,
-    Evaluation,
+    EvaluationIntense,
+    EvaluationCalm,
     Part2Announcement
 ]
