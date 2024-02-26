@@ -24,7 +24,7 @@ class Subsession(BaseSubsession):
 
 class Group(BaseGroup):  # market level
     dividend = models.IntegerField()
-    closing_price = models.FloatField()
+    closing_price = models.IntegerField()
     average_price = models.FloatField()
     starting_timestamp = models.IntegerField()
 
@@ -73,6 +73,7 @@ class Trade(ExtraModel):
 def creating_session(subsession):
     sc_rep = subsession.session.config.get('repetition', None)
     if sc_rep is not None:
+        subsession.session.vars["repetition"] = sc_rep
         repetition = sc_rep
     else:
         repetition = subsession.session.vars.get('repetition', 0)
@@ -495,7 +496,7 @@ class BaseTradingResultsWaitPage(WaitPage):
             player.dividend_payment = player.assets * player.group.dividend
             player.next_cash = player.cash + player.dividend_payment
 
-            if player.round_number == player.subsession.num_rounds and player.session.vars["pay_repetition"] == player.subsession.repetition:
+            if player.round_number == player.subsession.num_rounds and player.session.vars.get("pay_repetition", False) == player.subsession.repetition:
                 player.payoff = player.next_cash
 
 
