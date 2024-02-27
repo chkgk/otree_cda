@@ -1,5 +1,5 @@
 {{ block title }}
-    Instruktionen
+    Teil 1 - Instruktionen
 {{ endblock }}
 
 {{ block content }}
@@ -7,17 +7,17 @@
        Auf dem nächsten Bildschirm werden Sie gebeten, einen Videoclip anzusehen. Anschließend werden Ihnen einige spezifische Fragen zum Video gestellt.
     </p>
     <p>
-        Please put your headphones on, then press play. Make sure you can hear a sound playing. Contact the experimenter if you do not hear anything.
+        Bitte setzen Sie Ihre Kopfhörer auf und drücken Sie dann auf Play. Stellen Sie sicher, dass Sie einen Ton hören können. Kontaktieren Sie den Versuchsleiter, wenn Sie nichts hören.
     </p>
 
     <div class="mb-3">
-        <p>Test your audio:</p>
+        <p>Testen Sie den Ton:</p>
         <audio id="sound_check" controls loop controlslist="novolume nodownload nofullscreen noremoteplayback noplaybackrate nomute" volume="1.0"> 
             <source src="{{ static 'audio/crowd_talking.mp3' }}" type="audio/mp3"> 
         </audio> 
     </div>
     <p>
-        Please pay careful attention to the movie clip.
+        Bitte sehen Sie sich den Videoclip aufmerksam an.
     </p>
     {{ formfields }}
     {{ next_button }}
