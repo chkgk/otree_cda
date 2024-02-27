@@ -150,13 +150,17 @@ def market_create_session(subsession, repetition):
         group.dividend = dividend_sequence[subsession.round_number - 1]
 
         # set cash and assets
+        # random sequence
+        high_cash = [True for i in range(int(traders_per_market / 2))] + [False for i in range(int(traders_per_market / 2))]
+        random.shuffle(high_cash)
         for player in group.get_players():
             # first round endowments
             if subsession.round_number == 1:
-                if player.id_in_group <= traders_per_market / 2:
+                if high_cash[player.id_in_group - 1]:
                     player.cash, player.assets = sc["endowment_high_cash"]
                 else:
                     player.cash, player.assets = sc["endowment_low_cash"]
+
                 player.available_cash = player.cash
                 player.available_assets = player.assets
 
@@ -485,8 +489,8 @@ class BaseTradingResultsWaitPage(WaitPage):
             group.average_price = sum([t.price for t in trades]) / len(trades)
             group.closing_price = trades[-1].price
         else:
-            group.average_price = 0
-            group.closing_price = 0
+            group.average_price = None
+            group.closing_price = None
 
         # move on to next repetition
         if group.round_number == group.subsession.num_rounds:
@@ -519,8 +523,8 @@ class BaseTradingSummaryPage(Page):
                     "round": p.round_number, 
                     "cash": p.cash,
                     "assets": p.assets,
-                    "closing_price": g.closing_price,
-                    "average_price": g.average_price,
+                    "closing_price": g.field_maybe_none("closing_price"),
+                    "average_price": g.field_maybe_none("average_price"),
                     "dividend": g.dividend,
                     "dividend_sum": p.dividend_payment,
                     "total": p.next_cash
@@ -534,7 +538,7 @@ class BaseTradingSummaryPage(Page):
     def js_vars(player):
         average_prices = list()
         for g in player.group.in_all_rounds():
-            average_prices.append([g.round_number, g.average_price])
+            average_prices.append([g.round_number, g.field_maybe_none("average_price")])
 
         return {
             "average_prices": average_prices
