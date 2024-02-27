@@ -141,6 +141,15 @@
             </div>
         </div>
     </div>
+    
+    <div class="row">
+        <div class="col-4">
+            
+        </div>
+        <div class="col-8">
+            <div id="id_message"></div>
+        </div>
+    </div>
 
     {{ formfields }}
     {{ if view.is_debug }}
@@ -152,12 +161,21 @@
 {{ block scripts }}
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/modules/series-label.js"></script>
-    {{ if LANGUAGE_CODE == 'de' }}
-        <script src="{{ static 'trading/trading_chart_de.js' }}"></script>
-        <script src="{{ static 'trading/trading_timer_de.js' }}"></script>
-    {{ else }}
-        <script src="{{ static 'trading/trading_chart_en.js' }}"></script>
-        <script src="{{ static 'trading/trading_timer_en.js' }}"></script>
-    {{ endif }}
+    <script>
+        const language_code = "{{ LANGUAGE_CODE }}";
+        let timer_text, x_title, y_title;
+        if (language_code === "de") {
+            timer_text = "Verbleibende Zeit: ";
+            x_title = "Periode";
+            y_title = "Preis";
+        } else {
+            console.log('yay')
+            timer_text = "Time left: ";
+            x_title = "Period";
+            y_title = "Price";
+        }
+    </script>
+    <script src="{{ static 'trading/trading_timer_en.js' }}"></script>
+    <script src="{{ static 'trading/trading_chart_en.js' }}"></script>
     <script src="{{ static 'trading/trading_logic.js' }}"></script>
 {{ endblock }}

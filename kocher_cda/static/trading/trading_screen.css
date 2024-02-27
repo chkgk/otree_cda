@@ -27,3 +27,9 @@
 i.bi {
     color: #ff0000;
 }
+
+#id_message {
+    color: #ff0000;
+    font-style: italic;
+    text-align: center;
+}

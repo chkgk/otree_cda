@@ -6,7 +6,7 @@ Highcharts.chart('container', {
         enabled: false
     },
     title: {
-        text: 'Average Stock Price'
+        text: chart_title
     },
     tooltip: {
         enabled: false
@@ -17,14 +17,14 @@ Highcharts.chart('container', {
     xAxis: {
         tickInterval: 1,
         title: {
-            text: 'Period'
+            text: x_title
         },
         min: 1,
         max: 10
     },
     yAxis: {
         title: {
-            text: 'Points'
+            text: y_title
         },
         min: 0,
     },

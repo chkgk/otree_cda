@@ -17,14 +17,14 @@ let price_chart = Highcharts.chart('container', {
     xAxis: {
         tickInterval: 20,
         title: {
-            text: 'Seconds'
+            text: x_title,
         },
         min: 0,
         max: 120
     },
     yAxis: {
         title: {
-            text: 'Points'
+            text: y_title
         },
         min: 0,
     },

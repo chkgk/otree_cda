@@ -20,6 +20,8 @@ let bid_market_quantity = document.getElementById("id_bid_market_quantity");
 let place_market_ask = document.getElementById("id_place_market_ask");
 let place_market_bid = document.getElementById("id_place_market_bid");
 
+let message = document.getElementById("id_message");
+
 let ask_orders = [];
 let bid_orders = [];
 
@@ -36,6 +38,18 @@ let cash, assets, last_price, available_assets, available_cash;
 let market_start = js_vars.market_start;
 
 let my_player_id = js_vars.player_id;
+
+const DE_MAP = {
+    "You must enter a quantity.": "Sie müssen eine Menge eingeben.",
+    "The quantity must be positive.": "Die Menge muss positiv sein.",
+    "You must enter a price.": "Sie müssen einen Preis eingeben.",
+    "The price must be positive.": "Der Preis muss positiv sein.",
+    "You do not have enough points.": "Sie haben nicht genügend Punkte.",
+    "The price cannot be higher than the currently best sell offer.": "Der Preis darf nicht höher sein als das aktuell beste Verkaufsangebot.",
+    "The price cannot be lower than the currently best buy offer.": "Der Preis darf nicht niedriger sein als das aktuell beste Kaufangebot.",
+    "You cannot sell to yourself.": "Sie können nicht an sich selbst verkaufen.",
+    "You cannot buy from yourself.": "Sie können nicht von sich selbst kaufen."
+}
 
 function is_empty(obj) {
     return Object.keys(obj).length === 0;
@@ -61,7 +75,7 @@ function setup() {
 }
 
 function liveRecv(data) {
-    console.log(data);
+    // console.log(data);
     if (data.type === "order") {
         handle_order(data.payload);
     }
@@ -218,51 +232,78 @@ function bid_placed(data) {
     draw_table(bid_table_body, bid_orders);
 }
 
+function show_message(msg) {
+    message.innerHTML = msg;
+    message.style.display = "block";
+    setTimeout(function() {
+        message.style.display = "none";
+    }, 3000);
+}
+
+function _(msg) {
+    if (language_code === "en") {
+        return msg;
+    }
+    if (language_code === "de") {
+        return DE_MAP[msg];
+    }
+}
+
 function place_order(type, quantity, price) {
     if (quantity === "" || isNaN(quantity)){
         console.log("quantity is always required")
+        show_message(_("You must enter a quantity."))
         return;
     }
     if (quantity <= 0) {
         console.log("quantity must be positive")
+        show_message(_("The quantity must be positive."))
         return;
     }
     
     if (type === "place_limit_bid") {
-        if (price === "") {
+        if (price === "" || isNaN(price)) {
             console.log("price is required for limit orders")
+            show_message(_("You must enter a price."))
             return;
         }
         if (price <= 0) {
             console.log("price must be positive")
+            show_message(_("The price must be positive."))
             return;
         }
         if (quantity * price > available_cash) {
             console.log("not enough cash")
+            show_message(_("You do not have enough points."))
             return;
         }
         if (ask_orders.length > 0 && price >= parseInt(ask_orders[0].price)) {
             console.log("price too high")
+            show_message(_("The price cannot be higher than the currently best sell offer."))
             return;
         }
         liveSend({'type': 'order', 'payload': {'kind': 'limit', 'side': 'bid', 'quantity': quantity, 'price': price}});
     }
     
     if (type === "place_limit_ask") {
-        if (price === "") {
+        if (price === "" || isNaN(price)) {
             console.log("price is required for limit orders")
+            show_message(_("You must enter a price."))
             return;
         }
         if (price <= 0) {
             console.log("price must be positive")
+            show_message(_("The price must be positive."))
             return;
         }
         if (price * quantity > available_cash) {
             console.log("not enough cash")
+            show_message(_("You do not have enough points."))
             return;
         }
         if (bid_orders.length > 0 && price <= parseInt(bid_orders[0].price)) {
             console.log("price too low")
+            show_message(_("The price cannot be lower than the currently best buy offer."))
             return;
         }
         liveSend({'type': 'order', 'payload': {'kind': 'limit', 'side': 'ask', 'quantity': quantity, 'price': price}});
@@ -271,10 +312,12 @@ function place_order(type, quantity, price) {
     if (type === "place_market_ask") {
         if (bid_orders[0].player_id === my_player_id) {
             console.log("cannot sell to self")
+            show_message(_("You cannot sell to yourself."))
             return;
         }
         if (quantity > available_assets) {
             console.log("not enough assets")
+            show_message(_("You do not have enough shares."))
             return;
         }
         liveSend({'type': 'order', 'payload': {'kind': 'market', 'side': 'ask', 'quantity': quantity}});
@@ -283,10 +326,12 @@ function place_order(type, quantity, price) {
     if (type === "place_market_bid") {
         if (ask_orders[0].player_id === my_player_id) {
             console.log("cannot buy from self")
+            show_message(_("You cannot buy from yourself."))
             return;
         }
         if (quantity * parseInt(ask_orders[0].price) > available_cash) {
             console.log("not enough cash")
+            show_message(_("You do not have enough points."))
             return;
         }
         liveSend({'type': 'order', 'payload': {'kind': 'market', 'side': 'bid', 'quantity': quantity}});
