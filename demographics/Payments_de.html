@@ -15,7 +15,7 @@
 
 {{ block content }}
     <p>
-        You have now completed the experiment. Below you will find a breakdown of your earnings and instructions on the payment procedure.
+        Sie haben das Experiment nun abgeschlossen. Im Folgenden finden Sie eine Aufschlüsselung Ihrer Einnahmen und Anweisungen zum Auszahlungsverfahren.
     </p>
 
     <div class="accordion mb-3" id="accordionFlushExample">
@@ -23,7 +23,7 @@
             <div class="accordion-header">
                 <div class="accordion-button collapsed" id="show_up">
                    <div class="col-3">
-                       Payment for participation: 
+                       Auszahlung für die Teilnahme: 
                    </div>
                    <div class="col-8">
                        {{ show_up_eur }}
@@ -37,7 +37,7 @@
                 <div class="accordion-header">
                     <div class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
                         <div class="col-3">
-                            Payment for Part 1:
+                            Auszahlung für Teil 1:
                         </div>
                         <div class="col-8">
                             {{ part1_eur }} ({{ part1_points }})
@@ -47,18 +47,18 @@
                 <div id="flush-collapseOne" class="accordion-collapse collapse" >
                     <div class="accordion-body">
                         <p>
-                            Task 1.1:<br>
-                            You receive {{ part1_task1_eur }} ({{ part1_task1_points }}).
+                            Aufgabe 1.1:<br>
+                            Sie erhalten {{ part1_task1_eur }} ({{ part1_task1_points }}).
                         </p>
                         <p>
-                            Task 1.2:<br>
-                            You answered {{ crt_num_correct }} out of 3 questions correctly.<br>
-                            You receive {{ part1_task2_points }} ({{ part1_task2_eur }}).
+                            Aufgabe 1.2:<br>
+                            Sie haben {{ crt_num_correct }} von 3 Fragen richtig beantwortet.<br>
+                            Sie erhalten {{ part1_task2_points }} ({{ part1_task2_eur }}).
                         </p>
                         <p>
-                            Task 1.3:<br>
-                            Row {{ hl_row }} was selected at random. In this row, you chose lottery {{ hl_lottery_choice }}. {{ if hl_lottery_choice == 'A' }}The random draw yielded a lottery outcome of {{ hl_outcome }}.{{ else }}You receive the fixed amount.{{ endif }}<br>
-                            Your pay for this task is {{ part1_task3_eur }} ({{ part1_task3_points }} ).
+                            Aufgabe 1.3:<br>
+                            Zeile {{ hl_row }} wurde zufällig ausgewählt. In dieser Zeile haben Sie die Lotterie {{ hl_lottery_choice }} gewählt. {{ if hl_lottery_choice == 'A' }}Die Zufallsziehung ergab ein Lotterieergebnis von {{ hl_outcome }}.{{ else }}Sie erhalten den festen Betrag.{{ endif }}<br>
+                            Ihre Auszahlung für diese Aufgabe beträgt {{ part1_task3_eur }} ({{ part1_task3_points }} ).
                         </p>
                     </div>
                 </div>
@@ -69,7 +69,7 @@
             <div class="accordion-header">
                 <div class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
                     <div class="col-3">
-                        Payment for Part 2: 
+                        Auszahlung für Teil 2: 
                     </div>
                     <div class="col-8">
                         {{ part2_eur }} ({{ part2_points }})
@@ -79,8 +79,8 @@
             <div id="flush-collapseTwo" class="accordion-collapse collapse" >
                 <div class="accordion-body">
                     <p>
-                        Repetition {{ market_repetition }} was selected at random.<br>
-                        In this market, you earned {{ part2_eur }} ({{ part2_points }}).
+                        Wiederholung {{ market_repetition }} wurde zufällig ausgewählt.<br>
+                        In diesem Markt haben Sie {{ part2_eur }} ({{ part2_points }}) verdient.
                     </p>
                 </div>
             </div>
@@ -88,7 +88,7 @@
     </div>
 
     <p>
-        <b>Your total payment is: {{ total_eur }} ({{ total_points }}).</b>
+        <b>Ihre Gesamtauszahlung beträgt: {{ total_eur }} ({{ total_points }}).</b>
     </p>
 
     {{ next_button }}
