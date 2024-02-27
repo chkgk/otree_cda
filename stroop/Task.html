@@ -125,7 +125,7 @@
         });
     });
     function liveRecv(data) {
-        if (data["type"] == "stroop-trial") {
+        if (data["type"] === "stroop-trial") {
             current_trial = data["trial"];
             stimulus.innerHTML = data["trial"]["decoy_text"];
             stimulus.style.color = COLOR_MAP[data["trial"]["color"]];
