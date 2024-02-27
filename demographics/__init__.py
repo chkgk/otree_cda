@@ -36,7 +36,7 @@ def _(s):
         "How strenuous do you think today’s experiment was on a scale from 1 to 6?": "Wie anstrengend denken Sie, dass das Experiment heute auf einer Skala von 1 bis 6 war?",
         "1 - not strenuous at all": "1 - überhaupt nicht anstrengend",
         "6 - very strenuous": "6 - sehr anstrengend",
-        "How many of the questions of Part 3 Task 3.1 did you know already?": "Wie viele der Fragen von Teil 3 Aufgabe 3.1 kannten Sie bereits?",
+        "How many of the seven questions of Part 3 Task 3.1 did you know already?": "Wie viele der sieben Fragen von Teil 3 Aufgabe 3.1 kannten Sie bereits?",
         "How often have you participated in experiments?": "Wie oft haben Sie an Experimenten teilgenommen?",
         "never before": "noch nie",
         "once before": "einmal",
@@ -134,7 +134,7 @@ class Player(BasePlayer):
         (5, "5"),
         (6, _("6 - very strenuous")),
     ], widget=widgets.RadioSelect, label=_("How strenuous do you think today’s experiment was on a scale from 1 to 6?"))
-    num_crt_known = models.IntegerField(min=0, label=_("How many of the questions of Part 3 Task 3.1 did you know already?"))
+    num_crt_known = models.IntegerField(min=0, label=_("How many of the seven questions of Part 3 Task 3.1 did you know already?"))
     num_previous_participation = models.IntegerField(choices=[
         (0, _("never before")),
         (1, _("once before")),
