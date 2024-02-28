@@ -87,7 +87,7 @@ class Player(BasePlayer):
     vision_impairment = models.IntegerField(label=_("Are you suffering from ametropia?"), choices=[(0, _("No")), (1, _("Yes, myopia")), (2, _("Yes, farsightedness")), (3, _("Yes, other"))], widget=widgets.RadioSelect)
     vision_impairment_color = models.IntegerField(label=_("Are you suffering from color blindness?"), choices=[(0, _("No")), (1, _("Yes, red green weakness")), (2, _("Yes, red green blindness")), (3, _("Yes, other"))], widget=widgets.RadioSelect)
 
-    stroop_difficulty = models.IntegerField(label=_("How strenuous did you find the previous task on a scale of 1 to 6?"), choices=[(1, _("1 - not strenuous at all")), (2, "2"), (3, "3"), (4, "4"), (5, "5"), (6, _("6 - very strenuous"))], widget=widgets.RadioSelect)
+    stroop_difficulty = models.IntegerField(label=_("How strenuous did you find the previous task on a scale of 1 to 6?"), choices=[1, 2, 3, 4, 5, 6], widget=widgets.RadioSelect)
 
     crt3_sheep = models.IntegerField(label=_("A farmer had 15 sheep and all but 8 died. How many are left?"), min=0, max=15)
     crt3_daughters = models.StringField(label=_("Emily's father has three daughters. The first two are called April and May. What is the name of the third daughter?"))

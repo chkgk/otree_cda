@@ -3,8 +3,27 @@
 {{ endblock }}
 
 {{ block content }}
+    {{ formfield player.movie_pleasant }}
+    
+    <div class="mb-4">
+        {{ form.movie_calm_to_excited.label }}
+        <table width="100%">
+            <tr style="text-align: center;">
+                <td style="width: 20%;">
+                    very calm/relaxed
+                </td>
+                {{ for choice in form.movie_calm_to_excited }}
+                    <td>
+                        {{ choice }}<br>{{ choice.label }}
+                    </td>
+                {{ endfor }}
+                <td style="width: 20%;">
+                   very active/excited
+                </td>
+            </tr>
+        </table>
+    </div>
 
-    {{ formfields }}
     {{ next_button }}
 {{ endblock }}
 

@@ -3,7 +3,30 @@
 {{ endblock }}
 
 {{ block content }}
-    {{ formfields }}
+    {{ formfield player.gender }}
+    {{ formfield player.age }}
+    {{ formfield player.field_of_studies }}
+    {{ formfield player.num_semesters }}
+    {{ formfield player.math_grade }}
+
+    <div class="mb-4">
+        {{ form.risk_appetite.label }}
+        <table width="100%">
+            <tr style="text-align: center;">
+                <td style="width: 25%;">
+                    sehr risikoavers
+                </td>
+                {{ for choice in form.risk_appetite }}
+                    <td>
+                        {{ choice }}<br>{{ choice.label }}
+                    </td>
+                {{ endfor }}
+                <td style="width: 25%;">
+                   sehr risikofreudig
+                </td>
+            </tr>
+        </table>
+    </div>
     {{ next_button }}
 {{ endblock }}
 

@@ -1,9 +1,26 @@
 {{ block title }}
     Part 1 - Task 1.1
 {{ endblock }}
-{{ block content }}
 
-    {{ formfields }}
+{{ block content }}
+    <div class="mb-4">
+        {{ form.stroop_difficulty.label }}
+        <table width="100%">
+            <tr style="text-align: center;">
+                <td style="width: 25%;">
+                    not strenuous at all
+                </td>
+                {{ for choice in form.stroop_difficulty }}
+                    <td>
+                        {{ choice }}<br>{{ choice.label }}
+                    </td>
+                {{ endfor }}
+                <td style="width: 25%;">
+                   very strenuous
+                </td>
+            </tr>
+        </table>
+    </div>
     {{ next_button }}
 
 {{ endblock }}

@@ -94,17 +94,7 @@ class Player(BasePlayer):
 
     # calm questions
     movie_pleasant = models.BooleanField(choices=[(True, _("pleasant")), (False, _("unpleasant"))], widget=widgets.RadioSelect, label=_("Please indicate if the video you’ve just watched was either pleasant or unpleasant—only one option allowed."))
-    movie_calm_to_excited = models.IntegerField(label=_("How did this movie clip make you feel?"), widget=widgets.RadioSelect, choices=[
-        (1, _('1 - very calm/relaxed')),
-        (2, "2"),
-        (3, "3"),
-        (4, "4"),
-        (5, "5"),
-        (6, "6"),
-        (7, "7"),
-        (8, "8"),
-        (9, _('9 - very active/excited'))
-    ])
+    movie_calm_to_excited = models.IntegerField(label=_("How did this movie clip make you feel?"), widget=widgets.RadioSelect, choices=[1, 2, 3, 4, 5, 6, 7, 8, 9])
 
 # FUNCTIONS
 

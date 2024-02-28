@@ -2,8 +2,75 @@
     Teil 4 - Das heutige Experiment
 {{ endblock }}
 
-{{ block content }}
-    {{ formfields }}
+{{ block content }} 
+    <div class="mb-4">
+        {{ form.mood_today.label }}
+        <table width="100%">
+            <tr style="text-align: center;">
+                {{ for choice in form.mood_today }}
+                    <td style="width: 20%">
+                        {{ choice }}<br>{{ choice.label }}
+                    </td>
+                {{ endfor }}
+            </tr>
+        </table>
+    </div>
+
+    <div class="mb-4">
+        {{ form.mood_experiment.label }}
+        <table width="100%">
+            <tr style="text-align: center;">
+                {{ for choice in form.mood_experiment }}
+                    <td style="width: 20%">
+                        {{ choice }}<br>{{ choice.label }}
+                    </td>
+                {{ endfor }}
+            </tr>
+        </table>
+    </div>
+
+    <div class="mb-4">
+        {{ form.exhaustion.label }}
+        <table width="100%">
+            <tr  style="text-align: center;">
+                <td style="width: 25%;">
+                    überhaupt nicht erschöpft
+                </td>
+                {{ for choice in form.exhaustion }}
+                    <td>
+                        {{ choice }}<br>{{ choice.label }}
+                    </td>
+                {{ endfor }}
+                <td style="width: 25%;">
+                   sehr erschöpft
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="mb-4">
+        {{ form.strenuousness.label }}
+        <table width="100%">
+            <tr  style="text-align: center;">
+                <td style="width: 25%;">
+                    überhaupt nicht anstrengend
+                </td>
+                {{ for choice in form.strenuousness }}
+                    <td>
+                        {{ choice }}<br>{{ choice.label }}
+                    </td>
+                {{ endfor }}
+                <td style="width: 25%;">
+                   sehr anstrengend
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    {{ formfield player.num_crt_known }}
+    {{ formfield player.num_previous_participation }}
+    {{ formfield player.num_known_participants }}
+
     {{ next_button }}
 {{ endblock }}
 

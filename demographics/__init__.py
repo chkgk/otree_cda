@@ -94,14 +94,7 @@ class Player(BasePlayer):
         (5, _("deficient or inadequate"))
     ], widget=widgets.RadioSelect, label=_("What was your math grade at the end of school?"))
 
-    risk_appetite = models.IntegerField(choices=[
-        (1, _("1 - very risk averse")),
-        (2, "2"),
-        (3, "3"),
-        (4, "4"),
-        (5, "5"),
-        (6, _("6 - very risk seeking")),
-    ], widget=widgets.RadioSelect, label=_("How would you rate your risk appetite on a scale from 1 to 6?"))
+    risk_appetite = models.IntegerField(choices=[1, 2, 3, 4, 5, 6], widget=widgets.RadioSelect, label=_("How would you rate your risk appetite on a scale from 1 to 6?"))
 
     # questionnaire
     mood_today = models.IntegerField(choices=[
@@ -118,22 +111,8 @@ class Player(BasePlayer):
         (4, _("good")),
         (5, _("very good"))
     ], widget=widgets.RadioSelect, label=_("How would you rate your mood during the experiment?"))
-    exhaustion = models.IntegerField(choices=[
-        (1, _("1 - not exhausted at all")),
-        (2, "2"),
-        (3, "3"),
-        (4, "4"),
-        (5, "5"),
-        (6, _("6 - very exhausted")),
-    ], widget=widgets.RadioSelect, label=_("How would you rate your level of exhaustion on a scale from 1 to 6?"))
-    strenuousness = models.IntegerField(choices=[
-        (1, _("1 - not strenuous at all")),
-        (2, "2"),
-        (3, "3"),
-        (4, "4"),
-        (5, "5"),
-        (6, _("6 - very strenuous")),
-    ], widget=widgets.RadioSelect, label=_("How strenuous do you think today’s experiment was on a scale from 1 to 6?"))
+    exhaustion = models.IntegerField(choices=[1, 2, 3, 4, 5, 6], widget=widgets.RadioSelect, label=_("How would you rate your level of exhaustion on a scale from 1 to 6?"))
+    strenuousness = models.IntegerField(choices=[1, 2, 3, 4, 5, 6], widget=widgets.RadioSelect, label=_("How strenuous do you think today’s experiment was on a scale from 1 to 6?"))
     num_crt_known = models.IntegerField(min=0, label=_("How many of the seven questions of Part 3 Task 3.1 did you know already?"))
     num_previous_participation = models.IntegerField(choices=[
         (0, _("never before")),
