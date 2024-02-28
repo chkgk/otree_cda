@@ -13,7 +13,6 @@
 {% block scripts %}
     <script>
         $(document).ready(function(){
-            
             let otree_timer = document.querySelector(".otree-timer > p");
             otree_timer.firstChild.replaceWith("Time left to complete this part:");
         });
@@ -42,7 +41,7 @@
             Picture {{ page }} of {{ total }}
         </label>
         <div class="progress">
-            <div class="progress-bar" role="progressbar" style="width:{{ progress }}%;">
+            <div class="progress-bar" role="progressbar" style="width:{{ progress|json }}%;">
                 <span class="sr-only"></span>
             </div>
         </div>

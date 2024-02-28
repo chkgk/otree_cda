@@ -38,7 +38,7 @@
             Aufgabe {{ page }} von {{ total }}
         </label>
         <div class="progress">
-            <div class="progress-bar" role="progressbar" style="width:{{ progress }}%;">
+            <div class="progress-bar" role="progressbar" style="width:{{ progress|json }}%;">
                 <span class="sr-only"></span>
             </div>
         </div>

@@ -174,3 +174,9 @@ DEMO_PAGE_INTRO_HTML = """ """
 
 SECRET_KEY = '4324687630047'
 
+ROOMS = [
+    dict(
+        name='innsbruck',
+        display_name='Innsbruck EconLab',
+    )
+]
