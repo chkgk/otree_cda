@@ -102,15 +102,19 @@ def market_create_session(subsession):
     subsession.practice = C.REPETITION == 0
 
     num_traders = len(subsession.get_players())
-    if DEBUG:
-        traders_per_market = int(num_traders / 2)
-        num_markets = 2
-    else:
-        if num_traders % 16 != 0 and num_traders % 20 != 0:
-            raise Exception("Need a multiple of 16 or 20 traders")
+    if num_traders % 4 != 0:
+        raise Exception("Need a multiple of 4 traders")
 
-        traders_per_market = 10 if num_traders % 20 == 0 else 8
-        num_markets = int(num_traders / traders_per_market)
+    if num_traders < 16: 
+        traders_per_market = int(num_traders / 2)
+    elif num_traders % 20 == 0:
+        traders_per_market = 10
+    elif num_traders % 16 == 0:
+        traders_per_market = 8
+    else:
+        raise Exception("Number of traders not supported")
+
+    num_markets = int(num_traders / traders_per_market)
 
     # set group matrix
     if subsession.round_number == 1:
