@@ -80,6 +80,9 @@ def creating_session(subsession):
     return market_create_session(subsession, repetition=repetition)
 
 
+def custom_export(players):
+    return market_custom_export(players, repetition=players[0].subsession.session.vars.get("repetition", 0))
+
 def check_market_session_config(config):
     if config.get("trading_seconds", None) is None:
         raise Exception("trading_seconds not set in session config")
