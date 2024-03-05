@@ -24,7 +24,10 @@
     function advance_page(page_name) {
         const protocol = window.location.protocol;
         const hostname = window.location.hostname;
-        const port = window.location.port;
+        let port = window.location.port;
+        if (port === '') {
+            port = protocol === 'https:' ? '443' : '80';
+        }
         const url = protocol + '//' + hostname + ':' + port;
         const endpoint = "session_vars";
 
