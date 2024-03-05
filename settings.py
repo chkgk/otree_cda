@@ -13,19 +13,18 @@ SESSION_CONFIGS = [
         app_sequence=["intro"],
         num_demo_participants=4,
     ),
-    # dict(
-    #     name="cda_practice",
-    #     display_name="Asset Market Practice Period",
-    #     app_sequence=['cda_practice'],
-    #     num_demo_participants=4,
-    #     trading_seconds=120,
-    #     trading_summary_seconds=30,
-    #     dividend_high=10,
-    #     dividend_low=0,
-    #     endowment_high_cash=(3000, 20),
-    #     endowment_low_cash=(1000, 60),
-    #     repetiton=0
-    # ),
+    dict(
+        name="cda_practice",
+        display_name="Asset Market Practice Period",
+        app_sequence=['cda_practice'],
+        num_demo_participants=4,
+        trading_seconds=120,
+        trading_summary_seconds=30,
+        dividend_high=10,
+        dividend_low=0,
+        endowment_high_cash=(3000, 20),
+        endowment_low_cash=(1000, 60),
+    ),
     dict(
         name='stroop',
         display_name="1a Stroop Treatment",
@@ -41,7 +40,7 @@ SESSION_CONFIGS = [
     dict(
         name='cda_rep1',
         display_name="2.1 Asset Market - Repetition 1",
-        app_sequence=['kocher_cda'],  # 'cda_rep1'
+        app_sequence=['cda_rep1'],  # 'cda_rep1'
         num_demo_participants=4,
         trading_seconds=120,
         trading_summary_seconds=30,
@@ -49,7 +48,6 @@ SESSION_CONFIGS = [
         dividend_low=0,
         endowment_high_cash=(3000, 20),
         endowment_low_cash=(1000, 60),
-        repetition=1
     ),
     dict(
         name="start_rep2",
@@ -57,19 +55,18 @@ SESSION_CONFIGS = [
         app_sequence=["start_rep2"],
         num_demo_participants=4,
     ),
-    # dict(
-    #     name='cda_rep2',
-    #     display_name="2 Asset Market - Repetition 2",
-    #     app_sequence=['cda_rep2'],
-    #     num_demo_participants=4,
-    #     trading_seconds=120,
-    #     trading_summary_seconds=30,
-    #     dividend_high=10,
-    #     dividend_low=0,
-    #     endowment_high_cash=(3000, 20),
-    #     endowment_low_cash=(1000, 60),
-    #     repetition=2
-    # ),
+    dict(
+        name='cda_rep2',
+        display_name="2 Asset Market - Repetition 2",
+        app_sequence=['cda_rep2'],
+        num_demo_participants=4,
+        trading_seconds=120,
+        trading_summary_seconds=30,
+        dividend_high=10,
+        dividend_low=0,
+        endowment_high_cash=(3000, 20),
+        endowment_low_cash=(1000, 60),
+    ),
     dict(
         name="crt7",
         display_name="3.1 Cognitive Reflection Test",
@@ -99,12 +96,11 @@ SESSION_CONFIGS = [
         display_name="Complete Experiment - Stroop",
         app_sequence=[
             "intro",
-            # "cda_practice",
+            "cda_practice",
             "stroop",
-            "kocher_cda",
-            # "cda_rep1",
+            "cda_rep1",
             "start_rep2",
-            # "cda_rep2",
+            "cda_rep2",
             "crt7",
             "apm",
             "egt",
@@ -124,12 +120,11 @@ SESSION_CONFIGS = [
         display_name="Complete Experiment - Movie",
         app_sequence=[
             "intro",
-            # "cda_practice",
+            "cda_practice",
             "movie",
-            "kocher_cda",
-            # "cda_rep1",
+            "cda_rep1",
             "start_rep2",
-            # "cda_rep2",
+            "cda_rep2",
             "crt7",
             "apm",
             "egt",
@@ -156,7 +151,7 @@ SESSION_CONFIG_DEFAULTS = dict(
 )
 
 PARTICIPANT_FIELDS = []
-SESSION_FIELDS = []
+SESSION_FIELDS = ['repetition']
 
 # ISO-639 code
 # for example: de, fr, ja, ko, zh-hans

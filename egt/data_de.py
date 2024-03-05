@@ -6,6 +6,7 @@ PREVIEW_CHOICES_DE = ['eifersüchtig', 'panisch', 'arrogant', 'gehässig']
 PREVIEW_CORRECT_DE = 'panisch'
 
 CHOICES_DE = [
+    ['verspielt', 'tröstend', 'irritiert', 'gelangweilt'],
     ['erschrocken', 'bestürzt', 'arrogant', 'verärgert'],
     ['scherzend', 'zerstreut', 'verlangend', 'überzeugt'],
     ['scherzend', 'fordernd', 'amüsiert', 'entspannt'],

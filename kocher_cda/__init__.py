@@ -420,7 +420,7 @@ class BaseTradingWaitPage(WaitPage):
 
 class BaseTradingPage(Page):
     def get_template_name(self):
-        return f"kocher_cda/Trading_{settings.LANGUAGE_CODE}.html"
+        return f"trading/Trading_{settings.LANGUAGE_CODE}.html"
 
     def get_timeout_seconds(player):
         return player.session.config["trading_seconds"]
@@ -509,7 +509,7 @@ class BaseTradingResultsWaitPage(WaitPage):
 
 class BaseTradingSummaryPage(Page):
     def get_template_name(self):
-        return f"kocher_cda/TradingSummary_{settings.LANGUAGE_CODE}.html"
+        return f"trading/TradingSummary_{settings.LANGUAGE_CODE}.html"
 
     def is_displayed(player):
         return player.round_number <= player.subsession.num_rounds

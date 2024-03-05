@@ -34,8 +34,7 @@ class Constants(BaseConstants):
 
     # dynamically determine list of all images
     # ----------------------------------------------------------------------------------------------------------------
-    images = [str(j)+'.png' for j in range(1,37)]
-
+    images = [str(j)+'.png' for j in range(1, 37)]
     # commenting this out. Corgnet et al did all 36 in 10 minutes.
 
     # only keep odd-numbered items
