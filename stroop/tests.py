@@ -1,4 +1,4 @@
-from otree.api import Currency as c, currency_range, expect, Bot
+from otree.api import Currency as c, currency_range, expect, Bot, Submission
 from . import *
 
 
@@ -32,7 +32,7 @@ class PlayerBot(Bot):
             'vision_impairment_color': random.randint(0, 3),
         }
 
-        yield Task
+        yield Submission(Task, check_html=False)
 
         if self.player.id_in_group == 1:
             # there should be at exactly two trial in the db from the testing of the live methods
