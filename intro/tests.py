@@ -1,8 +1,8 @@
-from otree.api import Currency as c, currency_range, expect, Bot
+from otree.api import Currency as c, currency_range, expect, Bot, Submission
 from . import *
 
 
 class PlayerBot(Bot):
     def play_round(self):
         yield Consent, dict(consent_given=True)
-        yield Instructions
+        yield Submission(Instructions, check_html=False)
