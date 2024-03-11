@@ -1,13 +1,12 @@
 from otree.api import Currency as c, currency_range, expect, Bot, Submission
 from . import *
 
-
 class PlayerBot(Bot):
     def play_round(self):
         yield Part1Announcement
         yield Instructions
         yield Submission(Movie, check_html=False)
-
+        
         # set up the evaluation context
         eval_context = {
             'movie_feeling': random.randint(1, 2),
