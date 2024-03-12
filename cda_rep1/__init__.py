@@ -401,7 +401,7 @@ def market_custom_export(players):
 
 
 class BaseTradingWaitPage(WaitPage):
-    wait_for_all_groups = True
+    # wait_for_all_groups = True
 
     def is_displayed(player):
         return player.round_number <= player.subsession.num_rounds
