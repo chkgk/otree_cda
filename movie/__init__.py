@@ -164,10 +164,10 @@ class EvaluationIntense(TranslatedPage):
     @staticmethod
     def error_message(player, values):
         if values['movie_feeling'] == 1 and values['movie_intensity_anxiety'] is None:
-            return _("Please fill in the intensity of the selected feeling. 1")
+            return _("Please fill in the intensity of the selected feeling.")
 
         if values['movie_feeling'] == 2 and values['movie_intensity_excitement'] is None:
-            return _("Please fill in the intensity of the selected feeling. 2")
+            return _("Please fill in the intensity of the selected feeling.")
 
 
 class EvaluationCalm(TranslatedPage):
@@ -189,5 +189,5 @@ page_sequence = [
     Movie,
     EvaluationIntense,
     EvaluationCalm,
-    Part2Announcement
+    Part2Announcement,
 ]

@@ -307,6 +307,7 @@ class Part2Announcement(TranslatedPage):
     pass
 
 
+
 page_sequence = [
     Part1Announcement,
     PreTaskQuestions,
@@ -314,5 +315,5 @@ page_sequence = [
     PostTaskQuestions,
     CRT3,
     HL,
-    Part2Announcement
+    Part2Announcement,
 ]

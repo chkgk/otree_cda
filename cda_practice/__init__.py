@@ -154,7 +154,7 @@ def market_create_session(subsession):
         # set cash and assets
         # random sequence
         high_cash = [True for i in range(int(traders_per_market / 2))] + [False for i in range(int(traders_per_market / 2))]
-        print(high_cash)
+        # print(high_cash)
         random.shuffle(high_cash)
         for player in group.get_players():
             # first round endowments
@@ -402,7 +402,7 @@ def market_custom_export(players):
 
 
 class BaseTradingWaitPage(WaitPage):
-    # wait_for_all_groups = True
+    wait_for_all_groups = True
 
     def is_displayed(player):
         return player.round_number <= player.subsession.num_rounds
