@@ -1,0 +1,14 @@
+{{ block title }}
+    Part 1 - Page 1
+{{ endblock }}
+
+{{ block content }}
+
+    <audio id="sound_check" controls loop autoplay volume="1.0"> 
+        <source src="{{ static 'audio/crowd_talking.mp3' }}" type="audio/mp3"> 
+    </audio> 
+
+    {{ formfields }}
+    
+    {{ next_button }}
+{{ endblock }}

@@ -1,0 +1,60 @@
+{{ block title }}
+    Part 1 - Movie Clip
+{{ endblock }}
+
+{{ block styles }}
+    <style>
+        p {
+            text-align: center;
+        }
+        #movie_box {
+            text-align: center;
+            width: 100%;
+        }
+        video {
+            margin: auto;
+        }
+    </style>
+{{ endblock }}
+
+{{ block content }}
+    <div id="movie_box">
+        <video width="{{ width }}" height="{{ height }}" oncontextmenu="return false;" autoplay disablepictureinpicture disableremoteplayback preload="auto">
+            <source src="{{ video_url }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    <p><em>The clip might take a few moments to appear. Please be patient.<br>If the clip does not start to play, please click <a href="#" id="play_button">here</a>.</em></p>
+    {{ formfields }}
+    
+    {{ next_button }}
+{{ endblock }}
+
+{{ block scripts }}
+<script>
+    let vid = document.getElementsByTagName('video')[0];
+    let mform = document.getElementsByTagName('form')[0];
+    let play_button = document.getElementById('play_button');
+        
+    play_button.addEventListener('click', function() {
+       vid.play(); 
+    });
+    
+    vid.addEventListener('play', function() {
+        console.log('started playing');
+    });
+    vid.addEventListener('canplaythrough', function() {
+        console.log('can play through');
+        vid.poster = "";
+    });
+    vid.addEventListener('ended', function() {
+        console.log('ended playing');
+        mform.submit();
+    });
+    
+    let timer = document.querySelector('.otree-timer');
+    timer.style.display = 'none';
+
+    
+</script>
+{{ endblock }}
