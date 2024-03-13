@@ -176,7 +176,7 @@ class Payments(TranslatedPage):
             "part2_points": pp.vars.get("part2_points", cu(0)),
             "part2_eur": pp.vars.get("part2_points", cu(0)).to_real_world_currency(ps),
 
-            "market_repetition": pp.vars.get("market_repetition", 1),
+            "market_repetition": pp.vars.get("pay_repetition", 1),
 
             "total_points": pp.payoff,
             "total_eur": pp.payoff_plus_participation_fee(),

@@ -218,7 +218,7 @@ def calculate_payoff(player: Player, lottery):
     pp.vars["hl_points"] = lottery_points
 
     # total part 1
-    pp.vars["part_1_points"] = player.payoff
+    pp.vars["part1_points"] = player.payoff
 
 
 # PAGES

@@ -150,7 +150,7 @@ SESSION_CONFIG_DEFAULTS = dict(
     real_world_currency_per_point=1/160, participation_fee=5.00, doc=""
 )
 
-PARTICIPANT_FIELDS = []
+PARTICIPANT_FIELDS = ['stroop_points', 'crt_points', 'crt_num_correct', 'hl_chose_a', 'hl_row', 'hl_lottery_low', 'hl_points', 'part1_points', 'part2_points']
 SESSION_FIELDS = ['repetition']
 
 # ISO-639 code
