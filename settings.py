@@ -1,12 +1,12 @@
 from os import environ
 
 SESSION_CONFIGS = [
-    # dict(
-    #      name="export_test",
-    #      display_name="Export Test",
-    #      app_sequence=["export_test"],
-    #      num_demo_participants=4,
-    # ),
+    dict(
+         name="soundcheck",
+         display_name="Sound Check Session",
+         app_sequence=["soundcheck"],
+         num_demo_participants=4,
+    ),
     dict(
         name="intro",
         display_name="0 Introduction",
@@ -150,8 +150,8 @@ SESSION_CONFIG_DEFAULTS = dict(
     real_world_currency_per_point=1/160, participation_fee=5.00, doc=""
 )
 
-PARTICIPANT_FIELDS = []
-SESSION_FIELDS = ['repetition']
+PARTICIPANT_FIELDS = ['stroop_points', 'crt_points', 'crt_num_correct', 'hl_chose_a', 'hl_row', 'hl_lottery_low', 'hl_points', 'part1_points', 'part2_points']
+SESSION_FIELDS = ['repetition', 'pay_repetition']
 
 # ISO-639 code
 # for example: de, fr, ja, ko, zh-hans

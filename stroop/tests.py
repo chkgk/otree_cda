@@ -1,4 +1,4 @@
-from otree.api import Currency as c, currency_range, expect, Bot
+from otree.api import Currency as c, currency_range, expect, Bot, Submission
 from . import *
 
 
@@ -24,15 +24,21 @@ def call_live_method(method, **kwargs):
 
 
 class PlayerBot(Bot):
+
+    cases = [
+        # 'random', 
+        'selected'
+    ]
+
     def play_round(self):
         yield Part1Announcement
         yield PreTaskQuestions, {
-            'mother_tongue_german': random.choice([True, False]),
-            'vision_impairment': random.randint(0, 3),
-            'vision_impairment_color': random.randint(0, 3),
-        }
+                'mother_tongue_german': random.choice([True, False]),
+                'vision_impairment': random.randint(0, 3),
+                'vision_impairment_color': random.randint(0, 3),
+            }
 
-        yield Task
+        yield Submission(Task, check_html=False)
 
         if self.player.id_in_group == 1:
             # there should be at exactly two trial in the db from the testing of the live methods
@@ -42,13 +48,43 @@ class PlayerBot(Bot):
             'stroop_difficulty': random.randint(1, 6)
         }
 
-        yield CRT3, {
-            "crt3_sheep": random.randint(0, 15),
-            "crt3_daughters": random.choice(['Emily', 'June']),
-            "crt3_dirt": random.randint(0, 100)
-        }
+        if self.case == 'random':
+            crt3_context = {
+                "crt3_sheep": random.randint(0, 15),
+                "crt3_daughters": random.choice(['Emily', 'June']),
+                "crt3_dirt": random.randint(0, 100)
+            }
+        else:
+            crt3_context = {
+                "crt3_sheep": 8,  # correct 
+                "crt3_daughters": 'Emily',  # correct
+                "crt3_dirt": 10  # incorrect
+            }
+        yield CRT3, crt3_context
+        if self.case == ' defined':
+            assert self.player.crt3_score == 2
 
-        yield Submission(HL, {
-            f"hl_a_{i}": random.choice([True, False]) for i in range(1, 11)
-        }, check_html=False)
+        if self.case == 'random':
+            hl_context = {
+                f"hl_a_{i}": random.choice([True, False]) for i in range(1, 11)
+            }
+        else:
+            hl_context = {
+                "hl_a_1": False,
+                "hl_a_2": False,
+                "hl_a_3": False,
+                "hl_a_4": False,
+                "hl_a_5": False,
+                "hl_a_6": False,
+                "hl_a_7": False,
+                "hl_a_8": False,
+                "hl_a_9": False,
+                "hl_a_10": False,
+            }
+        yield Submission(HL, hl_context, check_html=False)
+        if self.case == 'defined':
+            pp = self.participant
+            assert pp.vars["hl_chose_a"] == False
+            assert pp.vars["hl_points"] == [cu(160*a) for a in [0.6, 1.0, 1.4, 1.8, 2.2, 2.6, 3.0, 3.4, 3.8, 4.2]][pp.vars["hl_row"] - 1]
+
         yield Part2Announcement

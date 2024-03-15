@@ -501,7 +501,8 @@ class BaseTradingResultsWaitPage(WaitPage):
             player.dividend_payment = player.assets * player.group.dividend
             player.next_cash = player.cash + player.dividend_payment
 
-            if player.round_number == player.subsession.num_rounds and player.session.vars.get("pay_repetition", False) == C.REPETITION:
+            if player.round_number == player.subsession.num_rounds and player.session.vars.get("pay_repetition", None) == C.REPETITION:
+                print(player.session.vars.get("pay_repetition", False), C.REPETITION)
                 player.payoff = player.next_cash
 
 

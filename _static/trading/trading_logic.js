@@ -44,7 +44,8 @@ const DE_MAP = {
     "The quantity must be positive.": "Die Menge muss positiv sein.",
     "You must enter a price.": "Sie müssen einen Preis eingeben.",
     "The price must be positive.": "Der Preis muss positiv sein.",
-    "You do not have enough points.": "Sie haben nicht genügend Punkte.",
+    "You do not have enough points available.": "Sie haben nicht genügend verfügbare Punkte.",
+    "You do not have enough shares available.": "Sie haben nicht genügend verfügbare Aktien.",
     "The price cannot be higher than the currently best sell offer.": "Der Preis darf nicht höher sein als das aktuell beste Verkaufsangebot.",
     "The price cannot be lower than the currently best buy offer.": "Der Preis darf nicht niedriger sein als das aktuell beste Kaufangebot.",
     "You cannot sell to yourself.": "Sie können nicht an sich selbst verkaufen.",
@@ -262,21 +263,25 @@ function place_order(type, quantity, price) {
     }
     
     if (type === "place_limit_bid") {
+        console.log('limit bid 1')
         if (price === "" || isNaN(price)) {
             console.log("price is required for limit orders")
             show_message(_("You must enter a price."))
             return;
         }
+        console.log('limit bid 2')
         if (price <= 0) {
             console.log("price must be positive")
             show_message(_("The price must be positive."))
             return;
         }
+        console.log('limit bid 3')
         if (quantity * price > available_cash) {
             console.log("not enough cash")
-            show_message(_("You do not have enough points."))
+            show_message(_("You do not have enough points available."))
             return;
         }
+        console.log('limit bid 4')
         if (ask_orders.length > 0 && price >= parseInt(ask_orders[0].price)) {
             console.log("price too high")
             show_message(_("The price cannot be higher than the currently best sell offer."))
@@ -286,26 +291,31 @@ function place_order(type, quantity, price) {
     }
     
     if (type === "place_limit_ask") {
+        console.log('limit ask 1')
         if (price === "" || isNaN(price)) {
             console.log("price is required for limit orders")
             show_message(_("You must enter a price."))
             return;
         }
+        console.log('limit ask 2')
         if (price <= 0) {
             console.log("price must be positive")
             show_message(_("The price must be positive."))
             return;
         }
-        if (price * quantity > available_cash) {
-            console.log("not enough cash")
-            show_message(_("You do not have enough points."))
+        console.log('limit ask 3')
+        if (quantity > available_assets) {
+            console.log("not enough assets")
+            show_message(_("You do not have enough shares available."))
             return;
         }
+        console.log('limit ask 4')
         if (bid_orders.length > 0 && price <= parseInt(bid_orders[0].price)) {
             console.log("price too low")
             show_message(_("The price cannot be lower than the currently best buy offer."))
             return;
         }
+        console.log('limit ask 5')
         liveSend({'type': 'order', 'payload': {'kind': 'limit', 'side': 'ask', 'quantity': quantity, 'price': price}});
     }
     
@@ -317,7 +327,7 @@ function place_order(type, quantity, price) {
         }
         if (quantity > available_assets) {
             console.log("not enough assets")
-            show_message(_("You do not have enough shares."))
+            show_message(_("You do not have enough shares available."))
             return;
         }
         liveSend({'type': 'order', 'payload': {'kind': 'market', 'side': 'ask', 'quantity': quantity}});
@@ -331,7 +341,7 @@ function place_order(type, quantity, price) {
         }
         if (quantity * parseInt(ask_orders[0].price) > available_cash) {
             console.log("not enough cash")
-            show_message(_("You do not have enough points."))
+            show_message(_("You do not have enough points available."))
             return;
         }
         liveSend({'type': 'order', 'payload': {'kind': 'market', 'side': 'bid', 'quantity': quantity}});

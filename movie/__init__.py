@@ -57,7 +57,7 @@ class C(BaseConstants):
         'intense': {
             "seconds": 7*60,
             "poster": "loading.gif",
-            "url": "video/intense.webm",
+            "video_url": "https://ckgk.de/ream/intense.webm",
             "width": 940,
             "height": 530,
             "youtube": "https://www.youtube-nocookie.com/embed/eGdUE1SldvE?si=-mbhPIhE-pY2PnDm&controls=0&autoplay=1"
@@ -65,7 +65,7 @@ class C(BaseConstants):
         'calm': {
             "seconds": 4*60,
             "poster": "loading.gif",
-            "url": "video/calm.webm",
+            "video_url": "https://ckgk.de/ream/calm.webm",
             "width": 706,
             "height": 530,
             "youtube": "https://www.youtube-nocookie.com/embed/S8fpFGnsq3w?si=Wx1BcDbCJraklm6j&amp;controls=0&autoplay=1"
@@ -164,10 +164,10 @@ class EvaluationIntense(TranslatedPage):
     @staticmethod
     def error_message(player, values):
         if values['movie_feeling'] == 1 and values['movie_intensity_anxiety'] is None:
-            return _("Please fill in the intensity of the selected feeling. 1")
+            return _("Please fill in the intensity of the selected feeling.")
 
         if values['movie_feeling'] == 2 and values['movie_intensity_excitement'] is None:
-            return _("Please fill in the intensity of the selected feeling. 2")
+            return _("Please fill in the intensity of the selected feeling.")
 
 
 class EvaluationCalm(TranslatedPage):
@@ -189,5 +189,5 @@ page_sequence = [
     Movie,
     EvaluationIntense,
     EvaluationCalm,
-    Part2Announcement
+    Part2Announcement,
 ]

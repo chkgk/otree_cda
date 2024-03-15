@@ -30,7 +30,7 @@
 {{ block content }}
     <div id="movie_box">
         <video width="{{ width }}" height="{{ height }}" poster="{{ static poster }}" oncontextmenu="return false;" autoplay disablepictureinpicture disableremoteplayback preload="auto">
-            <source src="{{ static url }}" type="video/mp4">
+            <source src="{{ video_url }}" type="video/mp4">
             Ihr Browser unterstützt den Video Tag nicht.
         </video>
     </div>
@@ -46,7 +46,7 @@
 {{ block scripts }}
 <script>
     let vid = document.getElementsByTagName('video')[0];
-    let form = document.getElementsByTagName('form')[0];
+    let mform = document.getElementsByTagName('form')[0];
     let play_button = document.getElementById('play_button');
         
     play_button.addEventListener('click', function() {
@@ -62,12 +62,10 @@
     });
     vid.addEventListener('ended', function() {
         console.log('ended playing');
-        form.submit();
+        mform.submit();
     });
     
     let timer = document.querySelector('.otree-timer');
     timer.style.display = 'none';
-
-    
 </script>
 {{ endblock }}

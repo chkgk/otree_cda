@@ -29,5 +29,5 @@ class PlayerBot(Bot):
             expect("flush-collapseOne", 'in', self.html)  # only present in part 1 payment data
         else:
             expect("flush-collapseOne", 'not in', self.html)  # part 1 does not pay in movie experiment
-        yield Payments
+        # yield Payments
 
