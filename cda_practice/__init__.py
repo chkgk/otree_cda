@@ -154,7 +154,7 @@ def market_create_session(subsession):
         # set cash and assets
         # random sequence
         high_cash = [True for i in range(int(traders_per_market / 2))] + [False for i in range(int(traders_per_market / 2))]
-        print(high_cash)
+        # print(high_cash)
         random.shuffle(high_cash)
         for player in group.get_players():
             # first round endowments
@@ -400,24 +400,24 @@ def market_custom_export(players):
 
 # PAGES
 
-
 class BaseTradingWaitPage(WaitPage):
-    # wait_for_all_groups = True
+    wait_for_all_groups = True
+    
+    def after_all_players_arrive(subsession):
+        for group in subsession.get_groups():
+            group.starting_timestamp = int(time.time())
+            if group.round_number == 1:
+                continue
+
+            for player in group.get_players():
+                prev_player = player.in_round(group.round_number - 1)
+                player.cash = prev_player.next_cash
+                player.assets = prev_player.assets
+                player.available_cash = player.cash
+                player.available_assets = player.assets
 
     def is_displayed(player):
         return player.round_number <= player.subsession.num_rounds
-
-    def after_all_players_arrive(group):
-        group.starting_timestamp = int(time.time())
-        if group.round_number == 1:
-            return
-
-        for player in group.get_players():
-            prev_player = player.in_round(group.round_number - 1)
-            player.cash = prev_player.next_cash
-            player.assets = prev_player.assets
-            player.available_cash = player.cash
-            player.available_assets = player.assets
 
 
 class BaseTradingPage(Page):
@@ -548,7 +548,6 @@ class BaseTradingSummaryPage(Page):
 
 class TradingWaitPage(BaseTradingWaitPage):
     pass
-
 
 class Trading(BaseTradingPage):
     pass

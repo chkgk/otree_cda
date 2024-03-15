@@ -115,7 +115,7 @@ def market_create_session(subsession):
         raise Exception("Number of traders not supported")
 
     num_markets = int(num_traders / traders_per_market)
-    print(num_traders, traders_per_market, num_markets)
+    # print(num_traders, traders_per_market, num_markets)
 
     # set group matrix
     if subsession.round_number == 1:
@@ -400,22 +400,23 @@ def market_custom_export(players):
 
 
 class BaseTradingWaitPage(WaitPage):
-    # wait_for_all_groups = True
+    wait_for_all_groups = True
 
     def is_displayed(player):
         return player.round_number <= player.subsession.num_rounds
 
-    def after_all_players_arrive(group):
-        group.starting_timestamp = int(time.time())
-        if group.round_number == 1:
-            return
+    def after_all_players_arrive(subsession):
+        for group in subsession.get_groups():
+            group.starting_timestamp = int(time.time())
+            if group.round_number == 1:
+                continue
 
-        for player in group.get_players():
-            prev_player = player.in_round(group.round_number - 1)
-            player.cash = prev_player.next_cash
-            player.assets = prev_player.assets
-            player.available_cash = player.cash
-            player.available_assets = player.assets
+            for player in group.get_players():
+                prev_player = player.in_round(group.round_number - 1)
+                player.cash = prev_player.next_cash
+                player.assets = prev_player.assets
+                player.available_cash = player.cash
+                player.available_assets = player.assets
 
 
 class BaseTradingPage(Page):
