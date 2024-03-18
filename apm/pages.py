@@ -7,6 +7,12 @@ from common.pages import TranslatedPage, LANGUAGE_MAP
 
 import time
 
+class APMWaitpage(WaitPage):
+    wait_for_all_groups = True
+    
+    def is_displayed(player):
+        return player.round_number == 1
+
 
 # ******************************************************************************************************************** #
 # *** PAGE INSTRUCTIONS *** #
@@ -61,6 +67,7 @@ class Decision(TranslatedPage):
 # *** PAGE SEQUENCE *** #
 # ******************************************************************************************************************** #
 page_sequence = [
+    APMWaitpage,
     Instructions,
     Decision
 ]
