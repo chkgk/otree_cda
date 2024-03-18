@@ -1,0 +1,72 @@
+{{ block title }}
+    Summary after trial period {{ player.round_number }} of {{ max_rounds }}
+{{ endblock }}
+
+{{ block styles }}
+    <link rel="stylesheet" href="{{ static 'trading/trading_screen.css' }}">
+{{ endblock }}
+
+{{ block content }}
+    <div class="mb-3">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Period</th>
+                    <th>Stocks</th>
+                    <th>Cash</th>
+                    <th>Last price</th>
+                    <th>Dividend</th>
+                    <th>Sum of dividends</th>
+                    <th>Total cash</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ for h in history }}
+                    <tr>
+                        <td>{{ h.round }}</td>
+                        <td>{{ h.assets }}</td>
+                        <td>{{ h.cash }}</td>
+                        <td>{{ if h.closing_price == None }}-{{ else }}{{ h.closing_price }}{{ endif }}</td>
+                        <td>{{ h.dividend }}</td>
+                        <td>{{ h.dividend_sum }}</td>
+                        <td>{{ h.total }}</td>
+                    </tr>
+                {{ endfor }}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mb-3">
+        <figure class="highcharts-figure">
+            <div id="container"></div>
+        </figure>
+    </div>
+
+    {{ if view.is_debug }}
+        <em>The next button is only shown in debug mode.</em>
+        {{ next_button }}
+    {{ endif }}
+{{ endblock }}
+
+{{ block scripts }}
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/series-label.js"></script>
+    <script>
+        const language_code = "{{ LANGUAGE_CODE }}";
+        let timer_text, x_title, y_title, chart_title
+        if (language_code === "de") {
+            timer_text = "Verbleibende Zeit: ";
+            chart_title = "Durchschnittlicher Aktienkurs";
+            x_title = "Periode";
+            y_title = "Preis";
+        } else {
+            console.log('yay')
+            timer_text = "Time left: ";
+            chart_title = "Average stock price";
+            x_title = "Period";
+            y_title = "Price";
+        }
+    </script>
+    <script src="{{ static 'trading/trading_summary_chart_en.js' }}"></script>
+    <script src="{{ static 'trading/trading_timer_en.js' }}"></script>
+{{ endblock }}

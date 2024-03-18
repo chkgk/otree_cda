@@ -1,6 +1,7 @@
 from otree.api import *
 from otree.settings import DEBUG, LANGUAGE_CODE
 from common.pages import TranslatedPage, LANGUAGE_MAP
+from math import ceil
 
 doc = """
 Your app description
@@ -142,6 +143,9 @@ class Questionnaire(TranslatedPage):
     form_model = 'player'
     form_fields = ["mood_today", "mood_experiment", "exhaustion", "strenuousness", "num_crt_known", "num_previous_participation", "num_known_participants"]
 
+    # def before_next_page(player, timeout_happened):
+    #     # round payoff up to next 0.2 EUR.
+    #     player.participant.payoff = player.participant.payoff.to_real_world_currency(player.session).quantize(cu(0.2), rounding=ROUND_UP)
 
 class Payments(TranslatedPage):
     def vars_for_template(player):
@@ -169,6 +173,8 @@ class Payments(TranslatedPage):
                 "hl_outcome": "€0.20" if pp.vars.get("hl_pay_left", True) else "€4.20",
             })
 
+        pp.payoff = cu(ceil(pp.payoff / 32) * 32)
+        
         context.update({
             "treatment": ps.config.get("experiment", None),
             "show_up_eur": ps.config['participation_fee'],
@@ -179,7 +185,6 @@ class Payments(TranslatedPage):
 
             "market_repetition": player.session.vars.get("pay_repetition", 1),
 
-            "total_points": pp.payoff + ps.config['participation_fee'] * 160,
             "total_eur": pp.payoff_plus_participation_fee(),
         })
         return context

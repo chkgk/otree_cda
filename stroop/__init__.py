@@ -13,7 +13,7 @@ def _(s):
     LANGUAGE_MAP["de"] = {
         "A farmer had 15 sheep and all but 8 died. How many are left?": "Ein Bauer hatte 15 Schafe und alle bis auf 8 starben. Wie viele sind übrig?",
         "Emily's father has three daughters. The first two are called April and May. What is the name of the third daughter?": "Emilys Vater hat drei Töchter. Die ersten beiden heißen April und Mai. Wie heißt die dritte Tochter?",
-        "How many cubic feet of dirt are there in a hole that is 3’ deep x 3’ wide x 3’ long?": "Wie viele Kubikfuß Erde gibt es in einem Loch, das 3 Fuß tief x 3 Fuß breit x 3 Fuß lang ist?",
+        "How many cubic feet of dirt are there in a hole that is 3’ deep x 3’ wide x 3’ long?": "Wie viele Kubikmeter Erde gibt es in einem Loch, das 3 Meter tief x 3 Meter breit x 3 Meter lang ist?",
         "How strenuous did you find the previous task on a scale of 1 to 6?": "Wie anstrengend fanden Sie die vorhergehende Aufgabe auf einer Skala von 1 bis 6?",
         "Is your native language German?": "Ist Ihre Muttersprache Deutsch?",
         "Are you suffering from ametropia?": "Leiden Sie unter einer Fehlsichtigkeit?",

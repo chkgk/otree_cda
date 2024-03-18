@@ -551,7 +551,8 @@ class TradingWaitPage(BaseTradingWaitPage):
     pass
 
 class Trading(BaseTradingPage):
-    pass
+    def get_template_name(self):
+        return f"cda_practice/Trading_{settings.LANGUAGE_CODE}.html"
 
 
 class TradingResultsWaitPage(BaseTradingResultsWaitPage):
@@ -559,7 +560,8 @@ class TradingResultsWaitPage(BaseTradingResultsWaitPage):
 
 
 class TradingSummary(BaseTradingSummaryPage):
-    pass
+    def get_template_name(self):
+        return f"cda_practice/TradingSummary_{settings.LANGUAGE_CODE}.html"
 
 
 page_sequence = [TradingWaitPage, Trading, TradingResultsWaitPage, TradingSummary]
