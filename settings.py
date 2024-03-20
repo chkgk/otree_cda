@@ -172,6 +172,25 @@ SECRET_KEY = '4324687630047'
 ROOMS = [
     dict(
         name='innsbruck',
-        display_name='Innsbruck EconLab',
+        display_name='Innsbruck EconLab - Labels S01 - S24',
+        participant_label_file='_rooms/econlab.txt',
+    ),
+    dict(
+        name='vcee',
+        display_name='VCEE Lab - Labels S01 - S28',
+        participant_label_file='_rooms/vcee.txt',
+    ),
+    dict(
+        name='vcee_any',
+        display_name='VCEE Lab - Any Label',
+    ),
+    dict(
+        name='wu',
+        display_name='WU Lab - Labels S01 - S32',
+        participant_label_file='_rooms/wu.txt',
+    ),
+    dict(
+        name='wu_any',
+        display_name='WU Lab - Any Label',
     )
 ]
