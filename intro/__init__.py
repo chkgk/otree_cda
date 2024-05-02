@@ -33,6 +33,9 @@ class Group(BaseGroup):
 
 class Player(BasePlayer):
     consent_given = models.BooleanField(initial=False, label=_("I am 18 years or older, have read the above information and I consent to participate in this study"), widget=widgets.CheckboxInput)
+    consent_berlin = models.BooleanField(initial=False, label=
+        "Ich habe die Datenschutzinformationen gelesen und bin mit der Teilnahme am Experiment und der genannten Datenverarbeitung einverstanden",
+                                        widget=widgets.CheckboxInput)
 
 
 # PAGE FUNCTIONS
@@ -41,6 +44,11 @@ def vars_for_admin_report(subsession: Subsession):
 
 
 # PAGES
+class ConsentBerlin(Page):
+    form_model = 'player'
+    form_fields = ['consent_berlin']
+
+
 class Consent(TranslatedPage):
     form_model = 'player'
     form_fields = ['consent_given']
@@ -58,4 +66,4 @@ class Instructions(TranslatedPage, ManualAdvancePage):
     pass
 
 
-page_sequence = [Consent, Instructions]
+page_sequence = [ConsentBerlin, Consent, Instructions]
