@@ -92,7 +92,13 @@
         Sie wurde auf den nächsten 20-Cent-Schritt aufgerundet.</b>
     </p>
 
-    {{ next_button }}
+    <div style="text-align: center;">{{ next_button }}</div>
 {{ endblock }}
 
+{{ block scripts }}
+<script>
+    let next_button = document.querySelector('.otree-btn-next');
+    next_button.innerHTML = 'Experiment abschließen';
+</script>
 
+{{ endblock scripts }}

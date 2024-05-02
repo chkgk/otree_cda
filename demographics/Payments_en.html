@@ -92,7 +92,14 @@
         It was rounded up to next 20 cent step.
     </p>
 
-    {{ next_button }}
+    <div style="text-align: center;">{{ next_button }}</div>
 {{ endblock }}
 
 
+{{ block scripts }}
+<script>
+    let next_button = document.querySelector('.otree-btn-next');
+    next_button.innerHTML = 'Leave Experiment';
+</script>
+
+{{ endblock scripts }}

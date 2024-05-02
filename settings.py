@@ -147,7 +147,7 @@ SESSION_CONFIGS = [
 # e.g. self.session.config['participation_fee']
 
 SESSION_CONFIG_DEFAULTS = dict(
-    real_world_currency_per_point=1/160, participation_fee=5.00, doc=""
+    real_world_currency_per_point=1/160, participation_fee=6.00, doc=""
 )
 
 PARTICIPANT_FIELDS = ['stroop_points', 'crt_points', 'crt_num_correct', 'hl_chose_a', 'hl_row', 'hl_lottery_low', 'hl_points', 'part1_points', 'part2_points']
@@ -170,6 +170,11 @@ DEMO_PAGE_INTRO_HTML = """ """
 SECRET_KEY = '4324687630047'
 
 ROOMS = [
+    dict(
+        name='berlin',
+        display_name='Berlin Lab - Labels S01 - S24',
+        participant_label_file='_rooms/econlab.txt',
+    ),
     dict(
         name='innsbruck',
         display_name='Innsbruck EconLab - Labels S01 - S24',
